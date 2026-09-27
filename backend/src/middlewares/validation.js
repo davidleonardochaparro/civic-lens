@@ -8,7 +8,8 @@ const idValidation = (db) => (req, res, next) => {
             message: "ID not found."
         });
     }
-    req.issueIndex = issueIndex; // Attach new object to the request to access this property later
+    // Attach new object to the request to access this property later
+    req.issueIndex = issueIndex; 
     req.issue = db[issueIndex]; 
     next();
 }
