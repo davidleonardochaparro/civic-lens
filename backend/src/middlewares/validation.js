@@ -1,3 +1,5 @@
+const dbAttributesValidation = require("../helpers/validationHelper");
+
 const idValidation = (db) => (req, res, next) => {
     const { id } = req.params;
     const issueIndex = db.findIndex( issue => issue.id === id);
@@ -12,7 +14,7 @@ const idValidation = (db) => (req, res, next) => {
 }
 
 const entriesValidation = (db) => (req, res, next) => {
-    let { id, title, description, category, status} = req.body;
+    let { id } = req.body;
     if (!id) {
         return res.status(406).json({
             message: "Missing ID."
@@ -21,38 +23,17 @@ const entriesValidation = (db) => (req, res, next) => {
     if (db.some(issue => issue.id === id)) {
         return res.status(409).json({ message: "ID already exists." });
     }
-    if (!title) {
-        return res.status(406).json({
-            message: "Missing title."
-        });
-    }
-    title = title.trim();
-    if (!description) {
-        return res.status(406).json({
-            message: "Missing description"
-        });
-    }
-    description = description.trim();
-    if (!category) {
-        return res.status(406).json({
-            message: "Missing category"
-        });
-    }
-    category = category.trim().toLowerCase();
-    const VALID_CATEGORIES = ["safety", "community"];
-    if (!VALID_CATEGORIES.includes(category)) {
-    return res.status(400).json({ message: "Invalid category." });
-    }
-    if (!status) {
-        return res.status(406).json({
-            message: "Missing status"
-        });
-    }
-    status = status.trim();
 
-    const newIssue = { id, title, description, category, status, createdAt: new Date() };
+    const { title, description, category, status } = req.body;
+    // Helper call
+    const result = dbAttributesValidation(title, description, category, status);
+
+    if (result.error) {
+        return res.status(result.error.status).json({ message: result.error.message});
+    }
+
+    const newIssue = { id, ...result.data, createdAt: new Date() };
     req.newIssue = newIssue;
-
     next();
 }
 
@@ -61,45 +42,22 @@ const updateIssueValidation = (db) => (req, res, next) => {
     const issueIndex = db.findIndex( issue => issue.id === id);
     if (issueIndex === -1) {
         return res.status(400).json({
-            message: `ID not found.`
+            message: "ID not found."
         });
     }
 
-    let { title, description, category, status } = req.body;
-    if (!title) {
-        return res.status(406).json({
-            message: "Missing title."
-        });
-    }
-    title = title.trim();
-    if (!description) {
-        return res.status(406).json({
-            message: "Missing description"
-        });
-    }
-    description = description.trim();
-    if (!category) {
-        return res.status(406).json({
-            message: "Missing category"
-        });
-    }
-    category = category.trim().toLowerCase();
-    const VALID_CATEGORIES = ["safety", "community"];
-    if (!VALID_CATEGORIES.includes(category)) {
-    return res.status(400).json({ message: "Invalid category." });
-    }
-    if (!status) {
-        return res.status(406).json({
-            message: "Missing status"
-        });
-    }
-    status = status.trim();
+    const { title, description, category, status } = req.body;
+    // Helper call
+    const result = dbAttributesValidation(title, description, category, status);
 
-    let updatedIssue = { id, title, description, category, status, createdAt: db[issueIndex].createdAt, updatedAt: new Date()}
+    if (result.error) {
+        return res.status(result.error.status).json({ message: result.error.message});
+    }
+
+    let updatedIssue = { id, ...result.data, createdAt: db[issueIndex].createdAt, updatedAt: new Date()}
 
     req.updatedIssue = updatedIssue;
     req.issueIndex = issueIndex;
-
     next();
 }
 
