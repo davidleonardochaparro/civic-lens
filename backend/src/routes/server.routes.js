@@ -24,7 +24,9 @@ router.get("/issues/:id", idValidation(db), (req, res) => {
 });
 
 router.post("/issues", entriesValidation(db), (req, res) => {
+
     db.push(req.newIssue);
+
     res.status(201).json({
         message: `Reached the ${req.method} route, from ${req.originalUrl}, added the issue`,
         newIssue: req.newIssue
