@@ -1,0 +1,29 @@
+* {
+    /* outline: 1px solid red; */
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background: radial-gradient(var(--bs-gray-900), var(--bs-gray-800), var(--bs-gray-700), var(--bs-gray-600));
+}
+
+.gray {
+    color: var(--bs-gray-300);
+}
+
+
+#not-found-message {
+    transition: transform 0.4s ease, opacity 0.4s ease, filter 0.4s ease;
+}
+
+#not-found-message:hover {
+    opacity: 0.7;
+    filter: brightness(0.7);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    #not-found-message:hover {
+        transform: scale(0.95);
+    }
+}

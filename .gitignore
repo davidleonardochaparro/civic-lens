@@ -4,8 +4,12 @@ node_modules/
 # environment variables
 .env
 
+# compiled CSS source maps
+*.css.map
+
 # editor junk
 .vscode/
 
 # OS junk
 Thumbs.db
+.DS_Store
