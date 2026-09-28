@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { idValidation, entriesValidation, updateIssueValidation } = require("../middlewares/validation");
+const { getIssues, issueByID, createIssue, updateIssue, deleteIssue } = require("../controllers/server.controller");
 
 let db = [
     {id:"123", title:"Streetlight", description:"Broken streetlight on Bowery street.", category:"safety", status:"Created", createdAt: new Date()},
@@ -9,49 +10,14 @@ let db = [
     {id:"110", title:"Abandoned property", description:"Abandoned property on West Village.", category:"community", status:"Created", createdAt:new Date()}
 ]
 
-router.get("/issues", (req, res) => {
-    res.status(200).json({
-        message: `Reached ${req.method} route, from ${req.originalUrl}, retrieved all issues`,
-        db
-    });
-});
+router.get("/issues", getIssues(db));
 
-router.get("/issues/:id", idValidation(db), (req, res) => {
-    res.status(200).json({
-        message: `Reached ${req.method} route, from ${req.originalUrl}`,
-        issueObject: req.issue
-    });    
-});
+router.get("/issues/:id", idValidation(db), issueByID);
 
-router.post("/issues", entriesValidation(db), (req, res) => {
+router.post("/issues", entriesValidation(db), createIssue(db));
 
-    db.push(req.newIssue);
+router.put("/issues/:id", updateIssueValidation(db), updateIssue(db));
 
-    res.status(201).json({
-        message: `Reached the ${req.method} route, from ${req.originalUrl}, added the issue`,
-        newIssue: req.newIssue
-    });
-});
-
-router.put("/issues/:id", updateIssueValidation(db), (req, res) => {
-    
-    db[req.issueIndex] = req.updatedIssue;
-    
-    res.status(200).json({
-        message: `Reached the ${req.method} route, from ${req.originalUrl} updated the issue`,
-        updatedIssue: req.updatedIssue
-    });
-});
-
-router.delete("/issues/:id", idValidation(db), (req, res) => {
-
-    const issueObject = db[req.issueIndex];
-    db.splice(req.issueIndex, 1);
-    
-    res.status(200).json({
-        message: `Reached the ${req.method} route, from ${req.originalUrl} deleted the issue`,
-        issueObject
-    });
-});
+router.delete("/issues/:id", idValidation(db), deleteIssue(db));
 
 module.exports = router;

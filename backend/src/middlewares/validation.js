@@ -17,7 +17,7 @@ const idValidation = (db) => (req, res, next) => {
 const entriesValidation = (db) => (req, res, next) => {
     let { id } = req.body;
     if (!id) {
-        return res.status(406).json({
+        return res.status(422).json({
             message: "Missing ID."
         });
     }
@@ -42,7 +42,7 @@ const updateIssueValidation = (db) => (req, res, next) => {
     const { id } = req.params;
     const issueIndex = db.findIndex( issue => issue.id === id);
     if (issueIndex === -1) {
-        return res.status(400).json({
+        return res.status(404).json({
             message: "ID not found."
         });
     }
