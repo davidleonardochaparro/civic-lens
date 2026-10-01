@@ -6,7 +6,8 @@ const rateLimiter = (req, res, next) => {
     let ip = req.ip;
     let now = Date.now();
     
-    if (!requests[ip]) { // Hash map
+    // Hash map creation for every IP
+    if (!requests[ip]) { 
         requests[ip] = {
             count: 1,
             startTime: now

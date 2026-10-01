@@ -4,6 +4,7 @@ const cors = require("cors");
 const routes = require("./routes/server.routes");
 const errorHandler = require("./middlewares/errorHandler"); 
 const rateLimiter = require("./middlewares/rateLimiter");
+const { db } = require("./db");
 
 const app = express();
 const publicDir = path.join(__dirname, "..", "public");
@@ -27,4 +28,4 @@ app.use((req, res) => {
 
 app.use(errorHandler); 
 
-module.exports = app;
+module.exports = {app, db};
