@@ -1,4 +1,4 @@
-const dbAttributesValidation = (title, description, category, status) => {
+const attributesValidation = (title, description, category, status) => {
     if (!title) {
         return { error: { status: 422, message: "Missing title."} };
     }
@@ -22,4 +22,23 @@ const dbAttributesValidation = (title, description, category, status) => {
     return { data: { title, description, category, status } };
 }
 
-module.exports = dbAttributesValidation;
+const norm = (title, description, category, status) => {
+    if (title) {
+        title = title.trim();
+    }
+    if (description) {
+        description = description.trim();
+    }
+    if (category) {
+        category = category.trim().toLowerCase();
+        const VALID_CATEGORIES = ["safety", "community"];
+        if (!VALID_CATEGORIES.includes(category)) {
+            return { error: { status: 400, message: "Invalid category." } };
+        }
+    }
+    if (status) {
+        status = status.trim();
+    }
+    return { data: { title, description, category, status } };
+}
+module.exports = { attributesValidation, norm };

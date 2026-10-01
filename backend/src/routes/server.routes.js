@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { idValidation, entriesValidation, updateIssueValidation } = require("../middlewares/validation");
+const { entriesValidation, bodyNormalized } = require("../middlewares/validation");
 const { getIssues, issueByID, createIssue, updateIssue, deleteIssue } = require("../controllers/server.controller");
 
 let db = [
@@ -10,14 +10,14 @@ let db = [
     {id:"110", title:"Abandoned property", description:"Abandoned property on West Village.", category:"community", status:"Created", createdAt:new Date()}
 ]
 
-router.get("/issues", getIssues(db));
+router.get("/issues", getIssues);
 
-router.get("/issues/:id", idValidation(db), issueByID);
+router.get("/issues/:id", issueByID);
 
-router.post("/issues", entriesValidation(db), createIssue(db));
+router.post("/issues", entriesValidation, createIssue);
 
-router.put("/issues/:id", updateIssueValidation(db), updateIssue(db));
+router.put("/issues/:id", bodyNormalized, updateIssue);
 
-router.delete("/issues/:id", idValidation(db), deleteIssue(db));
+router.delete("/issues/:id", deleteIssue(db));
 
 module.exports = router;
