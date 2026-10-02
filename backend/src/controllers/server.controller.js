@@ -53,13 +53,14 @@ const updateIssue = async (req, res) => {
         });
     }
 
-    const { title, description, category, status } = req.newIssue;
+    const { title, description, category, status, votes} = req.newIssue;
 
     const updatedIssue = {
         title: title ?? issue.title,
         description: description ?? issue.description,
         category: category ?? issue.category,
-        status: status ?? issue.status
+        status: status ?? issue.status,
+        votes: votes ?? issue.votes
     };
 
     await issue.update(updatedIssue);
@@ -70,14 +71,23 @@ const updateIssue = async (req, res) => {
     });
 }
 
-const deleteIssue = (db) => (req, res) => {
+const deleteIssue = async (req, res) => {
 
-    const issueObject = db[req.issueIndex];
-    db.splice(req.issueIndex, 1);
+    const { id } = req.params;
+
+    const issue = await Issue.findByPk(id);
+
+    if (!issue) {
+        return res.status(404).json({
+            message: "ID not found."
+        });
+    }
+
+    await issue.destroy();
     
     res.status(200).json({
         message: `Reached the ${req.method} route, from ${req.originalUrl} deleted the issue`,
-        issueObject
+        deletedIssue: issue
     });
 }
 

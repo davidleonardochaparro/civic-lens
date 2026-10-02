@@ -18,6 +18,10 @@ const Issue = db.define(
         status: {
             type: DataTypes.STRING(100),
             allowNull: false
+        }, 
+        votes: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         }
     },
     {
