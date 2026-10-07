@@ -1,4 +1,4 @@
-const  { attributesValidation, norm  } = require("../helpers/validationHelper");
+const  { attributesValidation, norm  } = require("../helpers/validIssueHelper");
 
 const entriesValidation = (req, res, next) => {
 

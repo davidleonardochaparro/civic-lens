@@ -1,7 +1,8 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
-const routes = require("./routes/server.routes");
+const issueRoutes = require("./routes/issue.routes");
+const authRoutes = require("./routes/auth.routes");
 const errorHandler = require("./middlewares/errorHandler"); 
 const rateLimiter = require("./middlewares/rateLimiter");
 const { db } = require("./db");
@@ -20,7 +21,8 @@ app.use(cors(corsOptions));
 app.use(rateLimiter);
 app.use(express.json());
 app.use(express.static(publicDir));
-app.use(routes);
+app.use(authRoutes);
+app.use(issueRoutes);
 
 app.use((req, res) => {
     res.status(404).sendFile(path.join(publicDir, "404.html"));

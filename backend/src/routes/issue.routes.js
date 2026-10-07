@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { entriesValidation, bodyNormalized } = require("../middlewares/validation");
-const { getIssues, issueByID, createIssue, updateIssue, deleteIssue } = require("../controllers/server.controller");
+const { entriesValidation, bodyNormalized } = require("../middlewares/issueValidation");
+const { getIssues, issueByID, createIssue, updateIssue, deleteIssue } = require("../controllers/issue.controller");
 
 router.get("/issues", getIssues);
 
