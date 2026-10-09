@@ -1,4 +1,4 @@
-const { normRegitration } = require("../helpers/validAuthHelper");
+const { normRegitration, normLogin } = require("../helpers/validAuthHelper");
 
 const registerValidation = (req, res, next) => {
     const { user_name, email, password} = req.body;
@@ -16,17 +16,15 @@ const registerValidation = (req, res, next) => {
 const loginValidation = (req, res, next) => {
     const { user_name, password} = req.body;
 
-    if (!user_name) {
-        return res.status(400).json({
-            message: "Missing user"
-        });
+    const result = normLogin(user_name, password);
+
+    if (result.error) {
+        return res.status(result.error.status).json({ message: result.error.message});
     }
-    if (!password) {
-        return res.status(400).json({
-            message: "Missing password"
-        });
-    }
+
+    const userNorm = {...result.data};
+    req.userNorm = userNorm;    
     next();
 }
 
-module.exports = {registerValidation, loginValidation};
+module.exports = { registerValidation, loginValidation };

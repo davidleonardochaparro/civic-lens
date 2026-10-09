@@ -14,6 +14,7 @@
     "watch:css": "sass --watch scss/custom.scss:public/css/custom.css"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bootstrap": "^5.3.8",
     "cors": "^2.8.6",
     "dotenv": "^18.0.3",
