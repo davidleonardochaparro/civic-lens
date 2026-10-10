@@ -1,4 +1,4 @@
-const { normRegitration, normLogin } = require("../helpers/validAuthHelper");
+const { normRegitration, normLogin, normReset } = require("../helpers/validAuthHelper");
 
 const registerValidation = (req, res, next) => {
     const { user_name, email, password} = req.body;
@@ -27,4 +27,15 @@ const loginValidation = (req, res, next) => {
     next();
 }
 
-module.exports = { registerValidation, loginValidation };
+const resetValidation = (req, res, next) => {
+    const { user_name, password, new_password } = req.body;
+    const result = normReset(user_name, password, new_password);
+    if (result.error) {
+        return res.status(result.error.status).json({ message: result.error.message});
+    }
+    const userNorm = {...result.data};
+    req.userNorm = userNorm;
+    next();
+}
+
+module.exports = { registerValidation, loginValidation, resetValidation };
