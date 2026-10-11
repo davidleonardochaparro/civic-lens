@@ -1,8 +1,9 @@
 const router = require("express").Router();
 const { entriesValidation, bodyNormalized } = require("../middlewares/issueValidation");
 const { getIssues, issueByID, createIssue, updateIssue, deleteIssue } = require("../controllers/issue.controller");
+const requireRole = require("../middlewares/requireRole");
 
-router.get("/issues", getIssues);
+router.get("/issues", requireRole("admin"), getIssues);
 
 router.get("/issues/:id", issueByID);
 

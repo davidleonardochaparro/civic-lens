@@ -21,6 +21,11 @@ const User = db.define(
             validate: {
                 min: 8
             }
+        },
+        role: {
+            type: DataTypes.ENUM("viewer", "editor", "admin"),
+            allowNull: false,
+            defaultValue: "viewer"
         }
     },
     {
