@@ -1,6 +1,3 @@
-# This is for just this commit, while you switch from config.json to config.js
-config/
-
 # dependencies
 node_modules/
 

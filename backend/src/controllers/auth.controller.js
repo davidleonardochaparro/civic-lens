@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
     const token = jwt.sign(
         { id: newUser.dataValues.id },
         JWT_KEY,
-        { expiresIn: "2min"}
+        { expiresIn: "5min"}
     );
 
     res.status(200).json({
@@ -66,7 +66,7 @@ const logUser = async (req, res) => {
     const token = jwt.sign(
         { id: userData.id },
         JWT_KEY,
-        { expiresIn: "2min"}
+        { expiresIn: "5min"}
     );
     
     res.status(200).json({
@@ -91,7 +91,7 @@ const resetPassword = async (req, res) => {
     // Prevent upload to the same password
     const samePwd = await bcrypt.compare( newPassword, foundUser.password );
     if (samePwd) {
-        return res.status(403).json({ message: "Try other password"});
+        return res.status(403).json({ message: "Try other new password"});
     }
 
     foundUser.password = bcrypt.hashSync(newPassword, SALT);
