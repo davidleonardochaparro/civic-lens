@@ -43,7 +43,7 @@ const norm = (title, description, category, status, votes) => {
         status = status.trim();
     }
 
-    if (!title && !description && !category && !status) {
+    if (!title && !description && !category && !status && !votes) {
         return { error: { status: 403, message: "Empty body." } };
     }
     return { data: { title, description, category, status, votes } };
