@@ -33,7 +33,10 @@ const issueByID = async (req, res) => {
 
 const createIssue = async (req, res) => {
 
-    const newIssue = await Issue.create(req.newIssue);
+    const newIssue = await Issue.create({
+        ...req.newIssue,
+        user_id: req.user.id
+    });
 
     res.status(201).json({
         message: `Reached the ${req.method} route, from ${req.originalUrl}, added the issue`,
@@ -44,6 +47,7 @@ const createIssue = async (req, res) => {
 const updateIssue = async (req, res) => {
     
     const { id } = req.params;
+    const userId = req.user.id;
 
     const issue = await Issue.findByPk(id);
 
@@ -53,7 +57,19 @@ const updateIssue = async (req, res) => {
         });
     }
 
+    if (issue.user_id !== userId) {
+        return res.status(403).json({
+            message: "Users can just update their own issues."
+        });
+    }
+
     const { title, description, category, status, votes} = req.newIssue;
+
+    if (votes) {
+        return res.status(403).json({
+            message: "Users cannot update the votes from their own issues."
+        });
+    }
 
     const updatedIssue = {
         title: title ?? issue.title,
@@ -74,12 +90,19 @@ const updateIssue = async (req, res) => {
 const deleteIssue = async (req, res) => {
 
     const { id } = req.params;
+    const userId = req.user.id;
 
     const issue = await Issue.findByPk(id);
 
     if (!issue) {
         return res.status(404).json({
             message: "ID not found."
+        });
+    }
+
+    if (issue.user_id !== userId) {
+        return res.status(403).json({
+            message: "Users can just delete their created issues."
         });
     }
 

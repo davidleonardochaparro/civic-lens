@@ -42,6 +42,10 @@ const norm = (title, description, category, status, votes) => {
     if (status) {
         status = status.trim();
     }
+
+    if (!title && !description && !category && !status) {
+        return { error: { status: 403, message: "Empty body." } };
+    }
     return { data: { title, description, category, status, votes } };
 }
 module.exports = { attributesValidation, norm };

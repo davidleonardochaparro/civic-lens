@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const { db } = require("./db");
-require("./schemas/associations");
+const setupAssociations = require("./schemas/associations");
 const issueRoutes = require("./routes/issue.routes");
 const authRoutes = require("./routes/auth.routes");
 const errorHandler = require("./middlewares/errorHandler"); 
@@ -16,6 +16,8 @@ const corsOptions = {
 }
 
 app.disable("x-powered-by"); // Hide server
+
+setupAssociations();
 
 // Middlewares
 app.use(cors(corsOptions)); 

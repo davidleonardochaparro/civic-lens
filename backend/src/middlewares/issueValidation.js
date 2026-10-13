@@ -31,4 +31,4 @@ const bodyNormalized = (req, res, next) => {
     next();
 }
 
-module.exports = {entriesValidation, bodyNormalized};
+module.exports = { entriesValidation, bodyNormalized };

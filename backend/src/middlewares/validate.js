@@ -3,9 +3,11 @@ const JWT_KEY = process.env.JWT_KEY;
 const { User } = require("../schemas/user.model");
 
 let validateSession = (req, res, next) => {
+    
     if (req.method === "OPTIONS") {
         next();
     }
+
     if (!req.headers.authorization) {
         return res.status(403).json({
             message: "Forbidden"
