@@ -17,6 +17,14 @@ const getIssues = async (req, res) => {
 
 const issueByID = async (req, res) => {
     const { id } = req.params;
+
+    const numericId = Number(id);
+
+    if (!Number.isInteger(numericId)) {
+        return res.status(400).json({
+            message: "Malformed param."
+        });
+    }
     const issue = await Issue.findByPk(id);
 
     if (!issue) {

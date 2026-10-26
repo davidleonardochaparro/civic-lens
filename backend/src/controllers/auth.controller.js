@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
     const token = jwt.sign(
         { id: newUser.dataValues.id },
         JWT_KEY,
-        { expiresIn: "5min"}
+        { expiresIn: "3h"}
     );
 
     res.status(200).json({
@@ -66,7 +66,7 @@ const logUser = async (req, res) => {
     const token = jwt.sign(
         { id: userData.id },
         JWT_KEY,
-        { expiresIn: "5min"}
+        { expiresIn: "3h"}
     );
     
     res.status(200).json({
