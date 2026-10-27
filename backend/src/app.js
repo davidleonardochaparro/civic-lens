@@ -12,7 +12,7 @@ const app = express();
 const publicDir = path.join(__dirname, "..", "public");
 
 const corsOptions = {
-    origin: "http://localhost:4000"
+    origin: "http://localhost:5173"
 }
 
 app.disable("x-powered-by"); // Hide server

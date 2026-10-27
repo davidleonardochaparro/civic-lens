@@ -5,14 +5,16 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import { useNavigate } from "react-router";
 
-export default function Login() {
-    const navigate = useNavigate();
+export default function Login({ userName, setUserName, password, setPassword, apiPost }) {
+    const navigate = useNavigate();    
+    
     return (
         <>
             <Row className="vh-100">
                 <Col className="d-flex flex-column justify-content-center align-items-center">
                     <p className="display-6 fw-normal mb-5">Login</p>
-                    <Form className="w-50">
+                    <Form className="w-50"
+                        onSubmit={apiPost}>
                         <Form.Group
                             className="mb-3"
                             controlId="validationCustomUsername"
@@ -27,6 +29,10 @@ export default function Login() {
                                     placeholder="e.g. pedro.fonseca1"
                                     aria-describedby="inputGroupPrepend"
                                     required
+                                    value={userName}
+                                    onChange={event => {
+                                        setUserName(event.target.value)
+                                    }}
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     Please choose a username.
@@ -42,6 +48,10 @@ export default function Login() {
                             <Form.Control
                                 type="password"
                                 placeholder=" * * * * * * *"
+                                value={password}
+                                onChange={event => {
+                                    setPassword(event.target.value)
+                                }}
                             />
                         </Form.Group>
 
@@ -53,7 +63,7 @@ export default function Login() {
                                 <a
                                     href=""
                                     className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                    onClick={()=>navigate("/reset")}
+                                    onClick={()=>navigate("/auth/reset")}
                                 >
                                     Reset password?
                                 </a>
@@ -74,7 +84,7 @@ export default function Login() {
                                 <a
                                     href=""
                                     className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                    onClick={()=>navigate("/register")}
+                                    onClick={()=>navigate("/auth/register")}
                                 >
                                     Sign up
                                 </a>
