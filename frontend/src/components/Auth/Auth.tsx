@@ -19,6 +19,15 @@ export default function Auth() {
     const [ email, setEmail ] = useState<string>("");
     const [ password, setPassword ] = useState<string>("");
     const [ newPassword, setNewPassword ] = useState<string>("");
+    const [ token, setToken ] = useState<string | null>(() => localStorage.getItem("token"));
+    
+    const headers = new Headers({
+        "Content-Type": "application/json"
+    });
+
+    if (token) {
+        headers.set("authorization", token);
+    }
     
     const apiPost = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -57,12 +66,16 @@ export default function Auth() {
         fetch( url, {
             method: method,
             body: JSON.stringify(body),
-            headers: new Headers({
-                "Content-Type": "application/json"
-            }),
+            headers
         })
         .then(res => res.json())
-        .then(data => console.log(data))
+        .then(data => {
+            console.log(data);
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                setToken(data.token);
+            }
+        })
         .catch(error => console.log(error))
     }
     
