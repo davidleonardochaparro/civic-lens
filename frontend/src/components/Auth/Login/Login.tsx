@@ -4,8 +4,7 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import { useNavigate } from "react-router";
-import { type NavigateFunction } from "react-router";
+import { Link } from "react-router";
 
 type LoginProps = {
     userName: string;
@@ -16,7 +15,7 @@ type LoginProps = {
 };
 
 export default function Login({ userName, setUserName, password, setPassword, apiPost }: LoginProps) {
-    const navigate: NavigateFunction = useNavigate();
+
     return (
         <>
             <Row className="vh-100">
@@ -38,6 +37,9 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                                     placeholder="e.g. pedro.fonseca1"
                                     aria-describedby="inputGroupPrepend"
                                     required
+                                    minLength={6}
+                                    maxLength={18}
+                                    pattern="[a-zA-Z ]+"
                                     value={userName}
                                     onChange={event => {
                                         setUserName(event.target.value)
@@ -57,6 +59,8 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                             <Form.Control
                                 type="password"
                                 placeholder=" * * * * * * *"
+                                minLength={8}
+                                maxLength={16}
                                 required
                                 value={password}
                                 onChange={event => {
@@ -70,13 +74,12 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                             mb-4"
                         >
                             <p>
-                                <a
-                                    href=""
+                                <Link 
+                                    to={"/auth/reset"}
                                     className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                    onClick={()=>navigate("/auth/reset")}
                                 >
                                     Reset password?
-                                </a>
+                                </Link>
                             </p>
                         </div>
 
@@ -91,13 +94,12 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                         <div className="d-flex justify-content-center">
                             <p>
                                 Don't have an account?{" "}
-                                <a
-                                    href=""
+                                <Link
+                                    to={"/auth/register"}
                                     className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                    onClick={()=>navigate("/auth/register")}
                                 >
                                     Sign up
-                                </a>
+                                </Link>
                             </p>
                         </div>
                     </Form>

@@ -39,9 +39,11 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                                     type="text"
                                     placeholder="e.g. pedro.fonseca1"
                                     aria-describedby="inputGroupPrepend"
+                                    required
+                                    minLength={6}
+                                    maxLength={18}
                                     value={userName}
                                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setUserName(event.target.value)}}
-                                    required
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     Please choose a username.
@@ -54,9 +56,11 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                             <Form.Control
                                 type="password"
                                 placeholder=" * * * * * * *"
+                                minLength={8}
+                                maxLength={16}
+                                required
                                 value={password}
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setPassword(event.target.value)}}
-                                required
                             />
                         </Form.Group>
 
@@ -65,9 +69,11 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                             <Form.Control
                                 type="password"
                                 placeholder=" * * * * * * *"
+                                minLength={8}
+                                maxLength={16}
+                                required
                                 value={newPassword}
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setNewPassword(event.target.value)}}
-                                required
                             />
                         </Form.Group>
                         
