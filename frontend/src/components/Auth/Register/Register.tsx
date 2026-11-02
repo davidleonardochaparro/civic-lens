@@ -61,7 +61,8 @@ export default function Register({
                                     placeholder="e.g. Pedro"
                                     required
                                     minLength={3}
-                                    maxLength={8}
+                                    maxLength={9}
+                                    pattern="[a-zA-Z ]+"
                                     value={name}
                                     onChange={handleName}                                />
                             </Form.Group>
@@ -73,7 +74,8 @@ export default function Register({
                                     placeholder="e.g. Fonseca"
                                     required
                                     minLength={3}
-                                    maxLength={8}
+                                    maxLength={10}
+                                    pattern="[a-zA-Z ]+"
                                     value={lastName}
                                     onChange={handleLastName}                                />
                             </Form.Group>

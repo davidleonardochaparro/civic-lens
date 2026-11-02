@@ -4,6 +4,7 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
+import { Link } from "react-router";
 
 type ResetProps = {
     userName: string;
@@ -41,7 +42,8 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                                     aria-describedby="inputGroupPrepend"
                                     required
                                     minLength={6}
-                                    maxLength={18}
+                                    maxLength={20}
+                                    pattern="[a-zA-Z0-9. ]+"
                                     value={userName}
                                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setUserName(event.target.value)}}
                                 />
@@ -82,6 +84,24 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                             mb-4"
                         >
                             <p>
+                                <Link
+                                    to={"/auth/login"}
+                                    className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                                >
+                                    Go login
+                                </Link>
+                            </p>
+                        </div>
+
+                        <Button className="w-100 mb-3" variant="primary" type="submit">
+                            Restore password
+                        </Button>
+
+                        <div
+                            className="d-flex justify-content-center
+                            mb-4"
+                        >
+                            <p>
                                 <a
                                     href=""
                                     className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
@@ -91,9 +111,6 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                             </p>
                         </div>
 
-                        <Button className="w-100 mb-3" variant="primary" type="submit">
-                            Restore password
-                        </Button>
                     </Form>
                 
                 </Col>

@@ -38,8 +38,8 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                                     aria-describedby="inputGroupPrepend"
                                     required
                                     minLength={6}
-                                    maxLength={18}
-                                    pattern="[a-zA-Z ]+"
+                                    maxLength={20}
+                                    pattern="[a-zA-Z0-9. ]+"
                                     value={userName}
                                     onChange={event => {
                                         setUserName(event.target.value)
@@ -78,7 +78,7 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                                     to={"/auth/reset"}
                                     className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
                                 >
-                                    Reset password?
+                                    Reset password
                                 </Link>
                             </p>
                         </div>

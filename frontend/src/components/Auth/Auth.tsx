@@ -20,6 +20,8 @@ export default function Auth() {
     const [ password, setPassword ] = useState<string>("");
     const [ newPassword, setNewPassword ] = useState<string>("");
     const [ token, setToken ] = useState<string | null>(() => localStorage.getItem("token"));
+    const [ error, setError ] = useState<string>("");
+    const [ success, setSuccess ] = useState<string>("");
     
     const headers = new Headers({
         "Content-Type": "application/json"
@@ -31,6 +33,8 @@ export default function Auth() {
     
     const apiPost = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setError("");
+        setSuccess("");
         let url: string = "";
         let method: string = "";
         let body: AuthBody;
@@ -56,31 +60,58 @@ export default function Auth() {
                 return;
         }
 
-        /*
-            ! Review after you passed the other routes
-            ? fetch logs every JSON response but doesn't check res.ok
-                * A 403 or 409 response will therefore be logged rather than handled as an error. The reset request also 
-                * needs the authorization token expected by your backend.
-        */
-
         fetch( url, {
             method: method,
             body: JSON.stringify(body),
             headers
         })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            if (data.token) {
+        .then(async res => {
+            const data: unknown = await res.json();
+            
+            if (typeof data !== "object" || data === null) {
+                throw new Error("The server returned an unexpected response.");
+            }
+
+            const message = "message" in data && typeof data.message === "string"
+                ? data.message
+                : "";
+
+            if (!res.ok) {
+                throw new Error(
+                    message || `Request failed (${res.status}).`
+                );
+            }
+
+            if (logRoute === "login" || logRoute === "register") {
+                if (!("token" in data) || typeof data.token !== "string" || data.token.trim() === "") {
+                    throw new Error("The server did not return the expected token.");
+                }
                 localStorage.setItem("token", data.token);
                 setToken(data.token);
             }
+            
+            setSuccess(message || "Request completed successfully.");
         })
-        .catch(error => console.log(error))
+        .catch((err: unknown) => {
+            setSuccess("");
+            setError(
+                err instanceof Error 
+                    ? err.message
+                    : "Something went wrong. Please try again."
+            );
+        });
     }
     
     return (
         <>
+            {error && (
+                <div className="alert alert-danger" role="alert">{error}</div>
+            )}
+            {success && (
+                <div className="alert alert-success" role="status">
+                    {success}
+                </div>
+            )}
             {logRoute === "login" ? (<Login userName={userName} setUserName={setUserName} password={password} setPassword={setPassword} apiPost={apiPost} />)
                 : logRoute === "register" ? (<Register setUserName={setUserName} email={email} setEmail={setEmail} password={password} setPassword={setPassword} apiPost={apiPost} />)
                 : logRoute === "reset" ? (<ResetPwd userName={userName} setUserName={setUserName} password={password} setPassword={setPassword} newPassword={newPassword} setNewPassword={setNewPassword} apiPost={apiPost} />)
