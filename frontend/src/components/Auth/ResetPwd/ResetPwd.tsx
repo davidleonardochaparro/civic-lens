@@ -14,17 +14,21 @@ type ResetProps = {
     newPassword: string;
     setNewPassword: React.Dispatch<React.SetStateAction<string>>;
     apiPost: (event: React.SubmitEvent<HTMLFormElement>) => void;
-}
+};
 
-export default function ResetPwd({ userName, setUserName, password, setPassword, newPassword, setNewPassword, apiPost }: ResetProps) {
-    
+export default function ResetPwd({
+    userName,
+    setUserName,
+    password,
+    setPassword,
+    newPassword,
+    setNewPassword,
+    apiPost,
+}: ResetProps) {
     return (
         <>
-
             <Row className="vh-100">
-
                 <Col className="d-flex flex-column justify-content-center align-items-center">
-
                     <p className="display-6 fw-normal mb-5">Reset password</p>
                     <Form className="w-50" onSubmit={apiPost}>
                         <Form.Group
@@ -42,10 +46,14 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                                     aria-describedby="inputGroupPrepend"
                                     required
                                     minLength={6}
-                                    maxLength={20}
+                                    maxLength={21}
                                     pattern="[a-zA-Z0-9. ]+"
                                     value={userName}
-                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setUserName(event.target.value)}}
+                                    onChange={(
+                                        event: React.ChangeEvent<HTMLInputElement>,
+                                    ) => {
+                                        setUserName(event.target.value);
+                                    }}
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     Please choose a username.
@@ -53,7 +61,10 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                             </InputGroup>
                         </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                        <Form.Group
+                            className="mb-3"
+                            controlId="formBasicPassword"
+                        >
                             <Form.Label>Password</Form.Label>
                             <Form.Control
                                 type="password"
@@ -62,11 +73,18 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                                 maxLength={16}
                                 required
                                 value={password}
-                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setPassword(event.target.value)}}
+                                onChange={(
+                                    event: React.ChangeEvent<HTMLInputElement>,
+                                ) => {
+                                    setPassword(event.target.value);
+                                }}
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                        <Form.Group
+                            className="mb-3"
+                            controlId="formBasicPassword"
+                        >
                             <Form.Label>New password</Form.Label>
                             <Form.Control
                                 type="password"
@@ -75,10 +93,17 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                                 maxLength={16}
                                 required
                                 value={newPassword}
-                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setNewPassword(event.target.value)}}
+                                onChange={(
+                                    event: React.ChangeEvent<HTMLInputElement>,
+                                ) => {
+                                    setNewPassword(event.target.value);
+                                }}
                             />
+                            <Form.Text>
+                                Your new password must be 8~16 characters long.
+                            </Form.Text>
                         </Form.Group>
-                        
+
                         <div
                             className="d-flex justify-content-end
                             mb-4"
@@ -93,7 +118,11 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                             </p>
                         </div>
 
-                        <Button className="w-100 mb-3" variant="primary" type="submit">
+                        <Button
+                            className="w-100 mb-3"
+                            variant="primary"
+                            type="submit"
+                        >
                             Restore password
                         </Button>
 
@@ -110,13 +139,9 @@ export default function ResetPwd({ userName, setUserName, password, setPassword,
                                 </a>
                             </p>
                         </div>
-
                     </Form>
-                
                 </Col>
-
             </Row>
-
         </>
     );
 }

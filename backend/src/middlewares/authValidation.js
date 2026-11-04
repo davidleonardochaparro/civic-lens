@@ -1,8 +1,8 @@
-const { normRegitration, normLogin, normReset } = require("../helpers/validAuthHelper");
+const { normRegistration, normLogin, normReset } = require("../helpers/validAuthHelper");
 
 const registerValidation = (req, res, next) => {
     const { user_name, email, password} = req.body;
-    const result = normRegitration(user_name, email, password);
+    const result = normRegistration(user_name, email, password);
 
     if (result.error) {
         return res.status(result.error.status).json({ message: result.error.message});

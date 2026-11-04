@@ -38,7 +38,7 @@ export default function Login({ userName, setUserName, password, setPassword, ap
                                     aria-describedby="inputGroupPrepend"
                                     required
                                     minLength={6}
-                                    maxLength={20}
+                                    maxLength={21}
                                     pattern="[a-zA-Z0-9. ]+"
                                     value={userName}
                                     onChange={event => {

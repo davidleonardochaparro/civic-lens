@@ -1,4 +1,4 @@
-const normRegitration = (userName, email, password) => {
+const normRegistration = (userName, email, password) => {
 
     if (!userName) {
         return { error: { status: 422, message: "Missing user_name."}};
@@ -9,7 +9,7 @@ const normRegitration = (userName, email, password) => {
     if (!password) {
         return { error: { status: 422, message: "Missing password."}};
     }
-    if (password.length < 8) {
+    if (typeof password !== "string" || password.length < 8) {
         return { error: { status: 400, message: "Password must have 8 characters minimum."}};
     }
 
@@ -25,7 +25,7 @@ const normRegitration = (userName, email, password) => {
     userName = userNameNorm;
 
     email = email.trim();
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
         return { error: { status: 400, message: "Valid email is required."}};
     }
@@ -43,7 +43,7 @@ const normLogin = (userName, password) => {
     }
 
     userName = userName.toLowerCase().trim();
-    password = password.trim();
+    // password = password.trim();
 
     return { data: { userName, password }};
 }
@@ -58,11 +58,14 @@ const normReset = (userName, password, newPassword) => {
     if (!newPassword) {
         return { error: { status: 422, message: "Missing new_password."}};
     }
+    if (typeof newPassword !== "string" || newPassword.length < 8) {
+        return { error: { status: 400, message: "New password must have 8 characters minimum."}};
+    }
     userName = userName.toLowerCase().trim();
-    password = password.trim();
-    newPassword = newPassword.trim();
+    // password = password.trim();
+    // newPassword = newPassword.trim();
 
     return { data: {userName, password, newPassword}};
 }
 
-module.exports = { normRegitration, normLogin, normReset };
+module.exports = { normRegistration, normLogin, normReset };
