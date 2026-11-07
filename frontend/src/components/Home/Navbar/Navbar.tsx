@@ -6,9 +6,7 @@ import { indigo } from "@mui/material/colors";
 import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-
-const indigoFifty = indigo[50];
-const indigoNineHundred = indigo[900];
+import { Link } from "react-router";
 
 export default function Navbar() {
     return (
@@ -74,24 +72,28 @@ export default function Navbar() {
                             }}
                         >
                             <Button
+                                component={Link}
+                                to="/auth/register"
                                 variant="contained"
                                 sx={{
-                                    backgroundColor: indigoFifty,
-                                    color: indigoNineHundred,
+                                    backgroundColor: indigo[50],
+                                    color: indigo[900],
                                     textTransform: "none",
                                     fontSize: { xs: "0.7rem", sm: ".875rem"},
                                     px: { xs: 1, sm: 2},
                                     py: { xs: 0.5, sm: .75},
                                     whiteSpace: "nowrap"
                                 }}
-                            >
+                            >                                
                                 Sign-up
                             </Button>
                             <Button
+                                component={Link}
+                                to="/auth/login"
                                 variant="contained"
                                 sx={{
-                                    backgroundColor: indigoFifty,
-                                    color: indigoNineHundred,
+                                    backgroundColor: indigo[50],
+                                    color: indigo[900],
                                     textTransform: "none",
                                     fontSize: { xs: "0.7rem", sm: ".875rem"},
                                     px: { xs: 1, sm: 2},

@@ -13,6 +13,10 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Stack from "@mui/material/Stack";
 import streetlight from "./assets/streetlight.jpg";
 import Chip from "@mui/material/Chip";
+import Alert from "@mui/material/Alert";
+import WarningIcon from '@mui/icons-material/Warning';
+import CircularProgress from "@mui/material/CircularProgress";
+import CheckIcon from '@mui/icons-material/Check';
 
 type Issue = {
     id: number;
@@ -26,6 +30,11 @@ type Issue = {
     updatedAt: string;
 };
 
+type IssueResponse = {
+    message: string;
+    allIssues: Issue[];
+}
+
 const handleDate = (data: string): string => {
     const date: Date = new Date(data);
     const displayDate = date.toLocaleDateString("en-US", {
@@ -37,15 +46,18 @@ const handleDate = (data: string): string => {
 }
 
 export default function IssueCard() {
-    /*
-     * Probably display the info of all the cards with a map()
-     * Make the fetch from the database probably
-     */
+    
     const [data, setData] = useState<Issue[] | null>(null);
-
+    const [error, setError] = useState<string>("");
+    
     const url: string = "http://127.0.0.1:4000/issues";
 
     useEffect(() => {
+
+        let ignore: boolean = false;
+        
+        setData(null);
+        setError("");
 
         async function fetchData<T>(url: string): Promise<T> {
             const res = await fetch(url);
@@ -59,18 +71,32 @@ export default function IssueCard() {
 
         async function fetchIssues() {
             try {
-                const data: any = await fetchData<Issue[]>(url);
+                const data = await fetchData<IssueResponse>(url);
+                if (ignore) return;
+                setError("");
                 setData(data.allIssues);
             } catch (error: unknown) {
-                const message = error instanceof Error
-                    ? error.message
-                    : "An unexpected error occurred";
+                if (ignore) return;
+
+                let message: string = "";
+
+                if (error instanceof Error) {
+                    message = error.message;
+                } else {
+                    message = "An unexpected error occurred";
+                }
+                setData(null);
+                setError(message);
 
                 console.error("Error fetching issues:", message);
             }
         }
 
         fetchIssues();
+
+        return () => {
+            ignore = true;
+        };
     }, []);
 
     return (
@@ -80,14 +106,14 @@ export default function IssueCard() {
                 spacing={2}
                 sx={{
                     alignItems: "center",
-                    mt: "2rem",
+                    mt: "1rem",
                 }}
             >
                 {data && data.map( (issue: Issue, index: number) => (
                     <div key={index}>
                         <Card 
                             sx={{ 
-                                width: "18rem"
+                                width: "22rem"
                             }}
                         >
                             <CardHeader
@@ -163,6 +189,24 @@ export default function IssueCard() {
                         </Card>
                     </div>
                 ))}
+
+                {!error && !data && (
+                    <CircularProgress size="3rem" aria-label="loading..." />
+                )}
+
+                {data && data.length === 0 && (
+                    <Alert icon={<CheckIcon fontSize="inherit" />} severity="warning">
+                        <Typography sx={{ typography: 'body1'}}>
+                            No issues posted yet
+                        </Typography>
+                    </Alert>
+                )}
+
+                {error && (
+                    <Alert icon={<WarningIcon fontSize="inherit" />} severity="error">
+                        {error}
+                    </Alert>
+                )}
             </Stack>
         </>
     );
