@@ -1,10 +1,17 @@
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button"; 
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
-import { useState } from "react";
+import TextField from "@mui/material/TextField";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import { type SelectChangeEvent } from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 const style = {
     position: 'absolute',
@@ -20,8 +27,13 @@ const style = {
 
 export default function NewIssue() {
     const [open, setOpen] = useState<boolean>(false);
+    const [category, setCategory] = useState<string>("");
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    const handleChange = (event: SelectChangeEvent) => {
+        setCategory(event.target.value as string);
+    }
 
     return (
         <>
@@ -66,12 +78,39 @@ export default function NewIssue() {
                             <Box
                                 sx={style}    
                             >
+                                <TextField
+                                    id="outlined-basic"
+                                    label="Issue's Title"
+                                    variant="outlined"
+                                />
+                                <Box sx={{ minWidth: 120 }}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={category}
+                                            label="Category"
+                                            onChange={handleChange}
+                                        >
+                                            <MenuItem value="community">Community</MenuItem>
+                                            <MenuItem value="safety">Safety</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
                                 <Typography id="transition-modal-title" variant="h6" component="h2">
-                                    Text in a modal
+                                    Issue's description
                                 </Typography>
+                                <TextareaAutosize
+                                    aria-label="minimum height"
+                                    minRows={2}
+                                    placeholder="Describe the issue you encountered"
+                                    style={{ width: "18rem"}}
+                                />
                                 <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-                                    Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                                    Here will be the drag and drop image option.
                                 </Typography>
+                                <Button variant="contained">Submit</Button>
                             </Box>
                         </Fade>
 
