@@ -1,11 +1,11 @@
 import Navbar from './Navbar/Navbar';
 import IssueCard from './IssueCard/IssueCard';
-import NewIssue from './NewIssue/NewIssue';
+import PostIssue from './PostIssue/PostIssue'
 export default function Home() {
     return (
         <>
             <Navbar />
-            <NewIssue />
+            <PostIssue />
             <IssueCard />
         </>
     );
