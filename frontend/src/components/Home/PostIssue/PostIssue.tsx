@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { useAPIPost } from "../../../hooks/useAPIPost.ts";
 import type { TransitionProps } from "@mui/material/transitions";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import Button from "@mui/material/Button";
@@ -20,6 +21,28 @@ import InputLabel from "@mui/material/InputLabel";
 import Slide from "@mui/material/Slide";
 import ImgUpload from "./ImgUpload/ImgUpload";
 
+type PostIssueProps = {
+    renderPosts: boolean;
+    setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+type SimpleDialogProps = PostIssueProps & {
+    open: boolean;
+    handleClose: () => void;
+}
+
+type PostBody = {
+    title: string;
+    description: string;
+    category: string;
+    status: string;
+    votes: number;
+};
+
+type APIResonse = {
+    message: string;
+}
+
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement<any, any>;
@@ -29,27 +52,56 @@ const Transition = React.forwardRef(function Transition(
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export interface SimpleDialogProps {
-    open: boolean;
-    handleClose: () => void;
-}
 
-function SimpleDialog(props: SimpleDialogProps) {
+function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleDialogProps) {
+    const [issueTitle, setIssueTitle] = useState<string>("");
     const [category, setCategory] = useState<string>("");
+    const [issueDescription, setIssueDescription] = useState<string>("");
 
-    const { handleClose, open } = props;
+    const { post, loading, error } = useAPIPost();
 
-    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    // const { handleClose, open } = props;
+
+    const requestHeaders = new Headers();
+    
+    const token: string | null = localStorage.getItem("token");
+    
+    const handleChange = (event: SelectChangeEvent) => {
+        setCategory(event.target.value);
+    };
+    
+    const apiPost = async (event: React.SubmitEvent<HTMLFormElement>): Promise<void> => {
+        
         event.preventDefault();
+
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
         const title = formJson.title;
-        console.log(title);
-        handleClose();
-    };
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setCategory(event.target.value);
+        const endpoint: string = "issues";
+        const body: PostBody = {
+            title: issueTitle,
+            description: issueDescription,
+            category: category,
+            status: "created",
+            votes: 0,
+        };
+        
+        if (!token) {
+            console.log("sign in");
+            return;
+        }
+
+        requestHeaders.set("Content-Type", "application/json");
+        requestHeaders.set("authorization", token);
+        
+        try {
+            const data: APIResonse = await post(endpoint, body, requestHeaders);
+            console.log(data);
+            setRenderPosts(previous => !previous);
+            handleClose();
+        } catch { }
+
     };
 
     return (
@@ -81,7 +133,7 @@ function SimpleDialog(props: SimpleDialogProps) {
                         Bring the issue's title, category, description and an
                         optional image.
                     </DialogContentText>
-                    <form onSubmit={handleSubmit} id="issue-form">
+                    <form onSubmit={apiPost} id="issue-form">
                         <Box
                             sx={{
                                 display: "flex",
@@ -93,6 +145,8 @@ function SimpleDialog(props: SimpleDialogProps) {
                             <TextField
                                 id="issue-title"
                                 name="title"
+                                value={issueTitle}
+                                onChange={e => {setIssueTitle(e.target.value)}}
                                 label="Issue title"
                                 variant="standard"
                                 margin="dense"
@@ -123,13 +177,12 @@ function SimpleDialog(props: SimpleDialogProps) {
                             </FormControl>
 
                             <Box
-                                
                                 sx={{
                                     width: "100%",
                                     mt: ".7rem",
                                     display: "flex",
                                     flexDirection: "column",
-                                    gap: .5
+                                    gap: 0.5,
                                 }}
                             >
                                 <DialogContentText>
@@ -137,6 +190,8 @@ function SimpleDialog(props: SimpleDialogProps) {
                                 </DialogContentText>
                                 <TextareaAutosize
                                     aria-label="minimum height"
+                                    value={issueDescription}
+                                    onChange={e => {setIssueDescription(e.target.value)}}
                                     minRows={3}
                                     placeholder=" Write the description here..."
                                     style={{ width: "100%" }}
@@ -147,17 +202,13 @@ function SimpleDialog(props: SimpleDialogProps) {
                             <Box
                                 sx={{
                                     width: "100%",
-                                    mt: ".7rem"
+                                    mt: ".7rem",
                                 }}
                             >
-                                <DialogContentText>
-                                    Photo:
-                                </DialogContentText>
+                                <DialogContentText>Photo:</DialogContentText>
 
                                 <ImgUpload />
                             </Box>
-
-
                         </Box>
                     </form>
                 </DialogContent>
@@ -167,12 +218,15 @@ function SimpleDialog(props: SimpleDialogProps) {
                         sx={{
                             width: "100%",
                             display: "flex",
-                            p: ".3rem"
+                            p: ".3rem",
                         }}
                     >
-                        <Button type="submit" form="issue-form" variant="contained"
+                        <Button
+                            type="submit"
+                            form="issue-form"
+                            variant="contained"
                             sx={{
-                                flexGrow: 1
+                                flexGrow: 1,
                             }}
                         >
                             Submit issue
@@ -184,7 +238,7 @@ function SimpleDialog(props: SimpleDialogProps) {
     );
 }
 
-export default function PostIssue() {
+export default function PostIssue({ renderPosts, setRenderPosts}: PostIssueProps) {
     const [open, setOpen] = useState<boolean>(false);
 
     const handleOpen = (): void => {
@@ -220,7 +274,7 @@ export default function PostIssue() {
                     >
                         Add new issue
                     </Button>
-                    <SimpleDialog open={open} handleClose={handleClose} />
+                    <SimpleDialog renderPosts={renderPosts} setRenderPosts={setRenderPosts} open={open} handleClose={handleClose} />
                 </Box>
             </Box>
         </>

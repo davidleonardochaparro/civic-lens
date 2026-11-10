@@ -25,7 +25,7 @@ type Issue = {
     category: string;
     status: string;
     votes: number;
-    userId: number | null;
+    user_id: number | null;
     createdAt: string;
     updatedAt: string;
 };
@@ -33,6 +33,10 @@ type Issue = {
 type IssueResponse = {
     message: string;
     allIssues: Issue[];
+}
+
+type IssueCardProps = {
+    renderPosts: boolean;
 }
 
 const handleDate = (data: string): string => {
@@ -45,9 +49,10 @@ const handleDate = (data: string): string => {
     return displayDate;
 }
 
-export default function IssueCard() {
+export default function IssueCard({ renderPosts }: IssueCardProps) {
     
     const [data, setData] = useState<Issue[] | null>(null);
+    const [dataOrganized, setDataOrganized] = useState<Issue[] | null>(null);
     const [error, setError] = useState<string>("");
     
     const url: string = "http://127.0.0.1:4000/issues";
@@ -75,11 +80,12 @@ export default function IssueCard() {
                 if (ignore) return;
                 setError("");
                 setData(data.allIssues);
+                organizeData(data.allIssues);
             } catch (error: unknown) {
                 if (ignore) return;
-
+                
                 let message: string = "";
-
+                
                 if (error instanceof Error) {
                     message = error.message;
                 } else {
@@ -87,7 +93,7 @@ export default function IssueCard() {
                 }
                 setData(null);
                 setError(message);
-
+                
                 console.error("Error fetching issues:", message);
             }
         }
@@ -97,7 +103,19 @@ export default function IssueCard() {
         return () => {
             ignore = true;
         };
-    }, []);
+    }, [renderPosts]);
+
+    function organizeData(data: Issue[] | null): void {
+        if (!data) return;
+
+        let sortedData: Issue[] = [];
+        
+        sortedData = data.toSorted((a: Issue, b: Issue) => {
+            return Date.parse(b.createdAt) - Date.parse(a.createdAt)
+        });
+
+        setDataOrganized(sortedData);
+    }
 
     return (
 
@@ -109,7 +127,7 @@ export default function IssueCard() {
                     mt: "1rem",
                 }}
             >
-                {data && data.map( (issue: Issue, index: number) => (
+                {dataOrganized && dataOrganized.map( (issue: Issue, index: number) => (
                     <div key={index}>
                         <Card 
                             sx={{ 
@@ -119,7 +137,7 @@ export default function IssueCard() {
                             <CardHeader
                                 avatar={
                                     <Avatar sx={{ bgcolor: red[500]}} aria-label="recipe">
-                                        {issue.userId ? issue.userId : 'R'}
+                                        {issue.user_id ? issue.user_id : 'R'}
                                     </Avatar>
                                 }
                                 action={
@@ -128,9 +146,16 @@ export default function IssueCard() {
                                     </IconButton>
                                 }
                                 title={issue.title}
-                                subheader={handleDate(issue.createdAt)}
+                                subheader={
+                                    <>
+                                        @{issue.user_id}
+                                        <br />
+                                        {handleDate(issue.createdAt)}
+                                    </>
+                                }
+                                
                             />
-                            {issue.userId && (
+                            {issue.user_id && (
                                 <CardMedia
                                     component="img"
                                     height="194"

@@ -3,12 +3,14 @@ const path = require("path");
 const cors = require("cors");
 const { db } = require("./db");
 const setupAssociations = require("./schemas/associations");
-const issueRoutes = require("./routes/issue.routes");
 const authRoutes = require("./routes/auth.routes");
+const issueRoutes = require("./routes/issue.routes");
+const userRoutes = require("./routes/user.routes");
 const errorHandler = require("./middlewares/errorHandler"); 
 const rateLimiter = require("./middlewares/rateLimiter");
 
 const app = express();
+
 const publicDir = path.join(__dirname, "..", "public");
 
 const corsOptions = {
@@ -25,6 +27,7 @@ app.use(rateLimiter);
 app.use(express.json());
 app.use(express.static(publicDir));
 app.use(authRoutes);
+app.use(userRoutes);
 app.use(issueRoutes);
 
 app.use((req, res) => {

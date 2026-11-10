@@ -19,7 +19,7 @@ const attributesValidation = (title, description, category, status, votes) => {
         return { error: { status: 422, message: "Missing status." } };
     }
     status = status.trim();
-    if (!votes) {
+    if (votes === null || votes === undefined) {
         return { error: { status: 422, message: "Missing votes."} };
     }
     return { data: { title, description, category, status, votes } };
