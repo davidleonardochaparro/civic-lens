@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { Link } from "react-router";
 import { useAPIPost } from "../../../hooks/useAPIPost.ts";
 import type { TransitionProps } from "@mui/material/transitions";
 import type { SelectChangeEvent } from "@mui/material/Select";
@@ -20,6 +21,7 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import Slide from "@mui/material/Slide";
 import ImgUpload from "./ImgUpload/ImgUpload";
+import Alert from "@mui/material/Alert";
 
 type PostIssueProps = {
     renderPosts: boolean;
@@ -57,21 +59,20 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
     const [issueTitle, setIssueTitle] = useState<string>("");
     const [category, setCategory] = useState<string>("");
     const [issueDescription, setIssueDescription] = useState<string>("");
+    const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+    const [alert, setAlert] = useState<boolean>(false);
 
     const { post, loading, error } = useAPIPost();
 
-    // const { handleClose, open } = props;
-
     const requestHeaders = new Headers();
-    
-    const token: string | null = localStorage.getItem("token");
-    
+        
     const handleChange = (event: SelectChangeEvent) => {
         setCategory(event.target.value);
     };
     
     const apiPost = async (event: React.SubmitEvent<HTMLFormElement>): Promise<void> => {
-        
+
+        setAlert(false);
         event.preventDefault();
 
         const formData = new FormData(event.currentTarget);
@@ -88,7 +89,7 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
         };
         
         if (!token) {
-            console.log("sign in");
+            setAlert(true);
             return;
         }
 
@@ -106,6 +107,7 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
 
     return (
         <>
+
             <Dialog
                 open={open}
                 onClose={handleClose}
@@ -114,7 +116,14 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
                 }}
                 keepMounted
             >
+
                 <DialogTitle>Issue details</DialogTitle>
+                {alert && (
+                    <Alert severity="warning">
+                        Just authenticated users can post an issue, you have to 
+                        <Link to={"/auth/login"}> log-in</Link> or <Link to={"/auth/register"}>register</Link>.
+                    </Alert>
+                )}
                 <IconButton
                     aria-label="close"
                     onClick={handleClose}

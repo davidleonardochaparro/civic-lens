@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCallback } from 'react';
 
 type APIRes = {
     message: string;
@@ -14,7 +15,7 @@ export const useAPI = (): APIPostReturn => {
     const [loading, setLoading] = useState<boolean | null>(null);
     const [err, setErr] = useState<boolean | null | unknown>(null)
 
-    const apiCall = async <T>(method: string, endpoint: string, headers: Headers, body?: object): Promise<T> => {
+    const apiCall = useCallback(async <T>(method: string, endpoint: string, headers: Headers, body?: object): Promise<T> => {
         setLoading(true);
         setErr(null);
 
@@ -51,7 +52,7 @@ export const useAPI = (): APIPostReturn => {
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
 
     return { apiCall, loading, err}
 }

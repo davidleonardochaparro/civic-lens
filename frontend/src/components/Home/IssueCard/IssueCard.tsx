@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { red } from "@mui/material/colors";
+import { addUsername, getUsername, handleDate, organizeData} from "./functions/functions.ts";
 import { useAPI } from "../../../hooks/useAPI";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
@@ -32,6 +33,7 @@ type Issue = {
     updatedAt: string;
 };
 
+
 type IssueWithUsername = {
     id: number;
     title: string;
@@ -54,10 +56,13 @@ type IssueCardProps = {
     renderPosts: boolean;
 };
 
+/*
 type User = {
     user_name: string;
 };
+*/
 
+/*
 type APIResponse = {
     message: string;
     user: User;
@@ -69,36 +74,27 @@ type UserResponse = {
         user_name: string;
     };
 };
-
-const handleDate = (data: string): string => {
-    const date: Date = new Date(data);
-    const displayDate = date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
-    return displayDate;
-};
+*/
 
 export default function IssueCard({ renderPosts }: IssueCardProps) {
     const [data, setData] = useState<Issue[] | null>(null);
-    const [dataOrganized, setDataOrganized] = useState<Issue[] | null>(null);
-    const [dataWithNames, setDataWithNames] = useState<
-        IssueWithUsername[] | null
-    >(null);
+    const [dataOrganized, setDataOrganized] = useState<Issue[] | null | undefined>(null);
+    const [dataWithNames, setDataWithNames] = useState<IssueWithUsername[] | null | undefined>(null);
     const [error, setError] = useState<string>("");
+    /*
     const [username, setUsername] = useState<string>("");
-
-    const { apiCall, loading, err } = useAPI();
+    */
+    const { apiCall } = useAPI();
 
     const url: string = "http://127.0.0.1:4000/issues";
+    /*
     const method: string = "GET";
     const requestHeaders = new Headers();
 
     requestHeaders.set("Content-Type", "application/json");
 
-    const getUsername = async (id: number | null): Promise<string> => {
-        if(!id) return "Anonymous";
+    async function getUsername(id: number | null): Promise<string> {
+        if (!id) return "Anonymous";
         try {
             const response: APIResponse = await apiCall<UserResponse>(
                 method,
@@ -109,17 +105,27 @@ export default function IssueCard({ renderPosts }: IssueCardProps) {
         } catch {
             return "Unknown user";
         }
-    };
+    }
 
     async function addUsername(data: Issue[] | null): Promise<void> {
-            if (!data) return;
-            const issuesWithUsernames = await Promise.all(
-                data.map(async (issue) => ({
-                    ...issue,
-                    username: await getUsername(issue.user_id),
-                }))
-            );
-            setDataWithNames(issuesWithUsernames);
+        if (!data) return;
+        const issuesWithUsernames = await Promise.all(
+            data.map(async (issue) => ({
+                ...issue,
+                username: await getUsername(issue.user_id),
+            })),
+        );
+        setDataWithNames(issuesWithUsernames);
+    }
+
+    function handleDate(data: string): string {
+        const date: Date = new Date(data);
+        const displayDate = date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+        return displayDate;
     }
 
     function organizeData(data: Issue[] | null): void {
@@ -133,15 +139,20 @@ export default function IssueCard({ renderPosts }: IssueCardProps) {
 
         setDataOrganized(sortedData);
     }
+    */
 
     useEffect(() => {
         if (!dataOrganized) return;
-        addUsername(dataOrganized);
+        const loadUsernames = async () => {
+            const result = await addUsername(dataOrganized, apiCall);
+            setDataWithNames(result);
+        }
+        loadUsernames();
     }, [dataOrganized]);
 
     useEffect(() => {
         if (!data) return;
-        organizeData(data);
+        setDataOrganized(organizeData(data));
     }, [data]);
 
     useEffect(() => {
@@ -213,7 +224,9 @@ export default function IssueCard({ renderPosts }: IssueCardProps) {
                                             sx={{ bgcolor: red[500] }}
                                             aria-label="recipe"
                                         >
-                                            {issue.username?.slice(0, 2).toUpperCase() || "R"}
+                                            {issue.username
+                                                ?.slice(0, 2)
+                                                .toUpperCase() || "R"}
                                         </Avatar>
                                     }
                                     action={

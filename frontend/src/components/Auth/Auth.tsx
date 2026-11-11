@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useParams } from "react-router";
+import { useNavigate } from "react-router";
 import Login from "./Login/Login.tsx";
 import Register from "./Register/Register.tsx";
 import ResetPwd from "./ResetPwd/ResetPwd.tsx";
@@ -22,6 +23,8 @@ export default function Auth() {
     const [ token, setToken ] = useState<string | null>(() => localStorage.getItem("token"));
     const [ error, setError ] = useState<string>("");
     const [ success, setSuccess ] = useState<string>("");
+
+    const navigate = useNavigate();
     
     const headers = new Headers({
         "Content-Type": "application/json"
@@ -91,6 +94,7 @@ export default function Auth() {
             }
             
             setSuccess(message || "Request completed successfully.");
+            navigate("/home");
         })
         .catch((err: unknown) => {
             setSuccess("");
