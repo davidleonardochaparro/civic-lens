@@ -39,7 +39,7 @@ type PostBody = {
     votes: number;
 };
 
-type APIResonse = {
+type APIResponse = {
     message: string;
 }
 
@@ -96,7 +96,7 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
         requestHeaders.set("authorization", token);
         
         try {
-            const data: APIResonse = await post(endpoint, body, requestHeaders);
+            const data: APIResponse = await post(endpoint, body, requestHeaders);
             console.log(data);
             setRenderPosts(previous => !previous);
             handleClose();

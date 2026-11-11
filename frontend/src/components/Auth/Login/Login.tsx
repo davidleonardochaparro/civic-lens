@@ -234,7 +234,7 @@ export default function Login({
                                     slotProps={{
                                         input: {
                                             minLength: 6,
-                                            maxLength: 21,
+                                            maxLength: 22,
                                             pattern: "[a-zA-Z0-9. ]+",
                                         },
                                     }}
