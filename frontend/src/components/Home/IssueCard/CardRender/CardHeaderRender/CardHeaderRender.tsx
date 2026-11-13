@@ -1,6 +1,6 @@
+import { useState } from "react";
 import type { CardHeaderProps } from "../Types/Types.ts";
 import { red } from "@mui/material/colors";
-import React from "react";
 import Avatar from "@mui/material/Avatar";
 import CardHeader from "@mui/material/CardHeader";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -10,6 +10,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
+import DialogRender from "./DialogRender/DialogRender.tsx";
 
 export default function CardHeaderRender({
     issue,
@@ -28,6 +29,17 @@ export default function CardHeaderRender({
     setRenderPosts,
     handleDate,
 }: CardHeaderProps) {
+
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    
+        function handleDialogOpen() {
+            setOpenDialog(true);
+        }
+    
+        function handleDialogClose() {
+            setOpenDialog(false);
+            handleClose(setAnchorEl);
+        };
     return (
         <>
             <CardHeader
@@ -108,17 +120,8 @@ export default function CardHeaderRender({
                                         justifyContent: "center",
                                         alignItems: "center",
                                     }}
-                                    onClick={() => {
-                                        handleDeletePost(
-                                            postId,
-                                            loading,
-                                            token,
-                                            setError,
-                                            apiCall,
-                                            setAnchorEl,
-                                            setRenderPosts,
-                                        );
-                                    }}
+                                    
+                                    onClick={handleDialogOpen}
                                     disabled={Boolean(loading)}
                                 >
                                     <MenuItem
@@ -135,6 +138,18 @@ export default function CardHeaderRender({
                                         <Typography>Delete</Typography>
                                     </MenuItem>
                                 </IconButton>
+                                <DialogRender 
+                                    openDialog={openDialog}
+                                    handleDialogClose={handleDialogClose}
+                                    handleDeletePost={handleDeletePost}
+                                    postId={postId}
+                                    loading={loading}
+                                    token={token}
+                                    setError={setError}
+                                    apiCall={apiCall}
+                                    setAnchorEl={setAnchorEl}
+                                    setRenderPosts={setRenderPosts}
+                                />
                             </Menu>
                         </>
                     )
