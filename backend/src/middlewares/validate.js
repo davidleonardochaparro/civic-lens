@@ -4,6 +4,8 @@ const { User } = require("../schemas/user.model");
 
 let validateSession = (req, res, next) => {
     
+    console.log('It made it until here');
+    
     if (req.method === "OPTIONS") {
         next();
     }
@@ -22,7 +24,7 @@ let validateSession = (req, res, next) => {
         if (err) {
             console.error(err);
             return res.status(403).json({
-                message: "Forbidden"
+                message: "Forbidden expired"
             });
         }
         const user = await User.findByPk(payload.id);

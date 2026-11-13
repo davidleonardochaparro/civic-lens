@@ -28,6 +28,11 @@ type IssueWithUsername = {
     updatedAt: string;
 };
 
+type IssueResponse = {
+    message: string;
+    allIssues: Issue[];
+}
+
 type User = {
     user_name: string;
 };
@@ -44,6 +49,8 @@ type UserResponse = {
     };
 };
 
+    
+const url: string = "http://127.0.0.1:4000/issues";
 const method: string = "GET";
 const requestHeaders = new Headers();
 requestHeaders.set("Content-Type", "application/json");
@@ -73,6 +80,38 @@ async function getUsername(id: number | null, apiCall: ApiCall): Promise<string>
     }
 }
 
+async function fetchData<T>(url: string): Promise<T> {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+        throw new Error(`Request failed: HTTP ${res.status}`);
+    }
+
+    return (await res.json()) as T;
+}
+
+async function fetchIssues(ignore: boolean, setError: React.Dispatch<React.SetStateAction<string>>, setData: React.Dispatch<React.SetStateAction<Issue[] | null>>) {
+    try {
+        const response = await fetchData<IssueResponse>(url);
+        if (ignore) return;
+        setError("");
+        setData(response.allIssues);
+    } catch (error: unknown){
+        if (ignore) return;
+
+        let message: string = "";
+
+        if (error instanceof Error) {
+            message = error.message;
+        } else {
+            message = "An unexpected error occurred";
+        }
+        setData(null);
+        setError(message);
+        console.error("Error fetching issues:", message);
+    }
+}
+
 function handleDate(data: string): string {
     const date: Date = new Date(data);
     const displayDate = date.toLocaleDateString("en-US", {
@@ -90,4 +129,4 @@ function organizeData(data: Issue[]): Issue[] | undefined {
     );
 }
 
-export { addUsername, getUsername, handleDate, organizeData };
+export { addUsername, handleDate, organizeData, fetchIssues, type Issue, type IssueWithUsername };

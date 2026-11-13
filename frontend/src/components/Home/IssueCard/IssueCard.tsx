@@ -1,152 +1,107 @@
 import { useEffect, useState } from "react";
 import { red } from "@mui/material/colors";
-import { addUsername, getUsername, handleDate, organizeData} from "./functions/functions.ts";
+import {
+    addUsername,
+    handleDate,
+    organizeData,
+    fetchIssues,
+    type Issue,
+    type IssueWithUsername,
+} from "./functions/functions.ts";
 import { useAPI } from "../../../hooks/useAPI";
+import Avatar from "@mui/material/Avatar";
+import Alert from "@mui/material/Alert";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import Stack from "@mui/material/Stack";
-import streetlight from "./assets/streetlight.jpg";
 import Chip from "@mui/material/Chip";
-import Alert from "@mui/material/Alert";
-import WarningIcon from "@mui/icons-material/Warning";
 import CircularProgress from "@mui/material/CircularProgress";
 import CheckIcon from "@mui/icons-material/Check";
-
-type Issue = {
-    id: number;
-    title: string;
-    description: string;
-    category: string;
-    status: string;
-    votes: number;
-    user_id: number | null;
-    username?: string;
-    createdAt: string;
-    updatedAt: string;
-};
-
-
-type IssueWithUsername = {
-    id: number;
-    title: string;
-    description: string;
-    category: string;
-    status: string;
-    votes: number;
-    user_id: number | null;
-    username?: string;
-    createdAt: string;
-    updatedAt: string;
-};
-
-type IssueResponse = {
-    message: string;
-    allIssues: Issue[];
-};
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import IconButton from "@mui/material/IconButton";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import MenuItem from "@mui/material/MenuItem";
+import Menu from "@mui/material/Menu";
+import Stack from "@mui/material/Stack";
+import streetlight from "./assets/streetlight.jpg";
+import Typography from "@mui/material/Typography";
+import WarningIcon from "@mui/icons-material/Warning";
 
 type IssueCardProps = {
     renderPosts: boolean;
 };
 
-/*
-type User = {
-    user_name: string;
-};
-*/
-
-/*
-type APIResponse = {
-    message: string;
-    user: User;
+type Payload = {
+    id: number;
+    iat: number;
+    exp: number;
 };
 
-type UserResponse = {
+type ResType = {
     message: string;
-    user: {
-        user_name: string;
-    };
-};
-*/
+}
 
 export default function IssueCard({ renderPosts }: IssueCardProps) {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [data, setData] = useState<Issue[] | null>(null);
-    const [dataOrganized, setDataOrganized] = useState<Issue[] | null | undefined>(null);
-    const [dataWithNames, setDataWithNames] = useState<IssueWithUsername[] | null | undefined>(null);
+    const [dataOrganized, setDataOrganized] = useState<
+        Issue[] | null | undefined
+    >(null);
+    const [dataWithNames, setDataWithNames] = useState<
+        IssueWithUsername[] | null | undefined
+    >(null);
+    const [deletePost, setDeletePost] = useState<boolean | null>(null);
     const [error, setError] = useState<string>("");
-    /*
-    const [username, setUsername] = useState<string>("");
-    */
+    const [token, setToken] = useState<string | null>(() =>
+        localStorage.getItem("token"),
+    );
+    const [userId, setUserId] = useState<number>(0);
+
     const { apiCall } = useAPI();
 
-    const url: string = "http://127.0.0.1:4000/issues";
-    /*
-    const method: string = "GET";
-    const requestHeaders = new Headers();
+    function handleMenu(e: React.MouseEvent<HTMLElement>) {
+        setAnchorEl(e.currentTarget);
+    }
 
-    requestHeaders.set("Content-Type", "application/json");
+    function handleDeletePost(): void {
+        setDeletePost(previous => !previous);
+    }
 
-    async function getUsername(id: number | null): Promise<string> {
-        if (!id) return "Anonymous";
-        try {
-            const response: APIResponse = await apiCall<UserResponse>(
-                method,
-                `user/${id}`,
-                requestHeaders,
+    function handleClose() {
+        setAnchorEl(null);
+    }
+
+    useEffect(() => {
+        if (token) {
+            const base64URL: string = token.split(".")[1];
+            const base64 = base64URL.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+                window
+                    .atob(base64)
+                    .split("")
+                    .map(function (c) {
+                        return (
+                            "%" +
+                            ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                        );
+                    })
+                    .join(""),
             );
-            return response.user.user_name;
-        } catch {
-            return "Unknown user";
+            const objectPayload: Payload = JSON.parse(jsonPayload);
+            setUserId(objectPayload.id);
         }
-    }
-
-    async function addUsername(data: Issue[] | null): Promise<void> {
-        if (!data) return;
-        const issuesWithUsernames = await Promise.all(
-            data.map(async (issue) => ({
-                ...issue,
-                username: await getUsername(issue.user_id),
-            })),
-        );
-        setDataWithNames(issuesWithUsernames);
-    }
-
-    function handleDate(data: string): string {
-        const date: Date = new Date(data);
-        const displayDate = date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-        return displayDate;
-    }
-
-    function organizeData(data: Issue[] | null): void {
-        if (!data) return;
-
-        let sortedData: Issue[] = [];
-
-        sortedData = data.toSorted((a: Issue, b: Issue) => {
-            return Date.parse(b.createdAt) - Date.parse(a.createdAt);
-        });
-
-        setDataOrganized(sortedData);
-    }
-    */
+    }, [token]);
 
     useEffect(() => {
         if (!dataOrganized) return;
         const loadUsernames = async () => {
             const result = await addUsername(dataOrganized, apiCall);
             setDataWithNames(result);
-        }
+        };
         loadUsernames();
     }, [dataOrganized]);
 
@@ -161,45 +116,41 @@ export default function IssueCard({ renderPosts }: IssueCardProps) {
         setData(null);
         setError("");
 
-        async function fetchData<T>(url: string): Promise<T> {
-            const res = await fetch(url);
-
-            if (!res.ok) {
-                throw new Error(`Request failed: HTTP ${res.status}`);
-            }
-
-            return (await res.json()) as T;
-        }
-
-        async function fetchIssues() {
-            try {
-                const response = await fetchData<IssueResponse>(url);
-                if (ignore) return;
-                setError("");
-                setData(response.allIssues);
-            } catch (error: unknown) {
-                if (ignore) return;
-
-                let message: string = "";
-
-                if (error instanceof Error) {
-                    message = error.message;
-                } else {
-                    message = "An unexpected error occurred";
-                }
-                setData(null);
-                setError(message);
-
-                console.error("Error fetching issues:", message);
-            }
-        }
-
-        fetchIssues();
+        fetchIssues(ignore, setError, setData);
 
         return () => {
             ignore = true;
         };
     }, [renderPosts]);
+
+    useEffect(() => {
+        if (deletePost !== null) {
+
+            async function deletePost() {
+                const endpoint: string = 'issues/27';
+                const requestHeaders = new Headers();
+                requestHeaders.set("Content-Type", "application/json");
+                
+                if (token) {
+                    requestHeaders.set("authorization", token);
+                }
+
+                try {
+                    const response: ResType = await apiCall("DELETE", endpoint, requestHeaders);
+                    console.log(response);
+                    if (response) {
+                        console.log(response.message);
+                    }
+                } catch {
+                    return
+                }
+
+            }
+
+            deletePost();
+
+        }
+    }, [deletePost]);
 
     return (
         <>
@@ -230,9 +181,84 @@ export default function IssueCard({ renderPosts }: IssueCardProps) {
                                         </Avatar>
                                     }
                                     action={
-                                        <IconButton aria-label="settings">
-                                            <MoreVertIcon />
-                                        </IconButton>
+                                        userId === issue.user_id && (
+                                            <>
+                                                <IconButton
+                                                    aria-label="settings"
+                                                    aria-controls="menu-post"
+                                                    aria-haspopup="true"
+                                                    onClick={handleMenu}
+                                                >
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                                <Menu
+                                                    elevation={1}
+                                                    id="menu-post"
+                                                    anchorEl={anchorEl}
+                                                    anchorOrigin={{
+                                                        vertical: "bottom",
+                                                        horizontal: "left",
+                                                    }}
+                                                    keepMounted
+                                                    transformOrigin={{
+                                                        vertical: "top",
+                                                        horizontal: "left",
+                                                    }}
+                                                    open={Boolean(anchorEl)}
+                                                    onClose={handleClose}
+                                                >
+                                                    <MenuItem
+                                                        onClick={handleClose}
+                                                        sx={{
+                                                            display: "flex",
+                                                            p: 1
+                                                        }}
+                                                    >
+                                                        <IconButton aria-label="delete the post"
+                                                            sx={{
+                                                                flexGrow: 1,
+                                                                p: 0,
+                                                                display: 'flex',
+                                                                direction: 'row',
+                                                                justifyContent: 'start',
+                                                                alignItems: 'center',
+                                                                gap: .5
+                                                            }}
+                                                        >
+                                                            <EditIcon />
+                                                            <Typography>
+                                                                Edit
+                                                            </Typography>
+                                                        </IconButton>
+                                                    </MenuItem>
+                                                    <MenuItem
+                                                        onClick={handleClose}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            p: 1
+                                                        }}
+                                                    >
+                                                        <IconButton aria-label="delete the post"
+                                                            sx={{
+                                                                flexGrow: 1,
+                                                                p: 0,
+                                                                display: 'flex',
+                                                                direction: 'row',
+                                                                justifyContent: 'start',
+                                                                alignItems: 'center',
+                                                                gap: .5
+                                                            }}
+                                                            onClick={handleDeletePost}
+                                                        >
+                                                            <DeleteIcon />
+                                                            <Typography>
+                                                                Delete
+                                                            </Typography>
+                                                        </IconButton>
+                                                    </MenuItem>
+                                                </Menu>
+                                            </>
+                                        )
                                     }
                                     title={issue.title}
                                     subheader={

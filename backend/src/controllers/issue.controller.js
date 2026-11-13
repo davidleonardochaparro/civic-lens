@@ -108,7 +108,7 @@ const deleteIssue = async (req, res) => {
         return res.status(404).json({
             message: "ID not found."
         });
-    }
+    }    
 
     if (issue.user_id !== userId) {
         return res.status(403).json({
