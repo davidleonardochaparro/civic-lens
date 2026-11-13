@@ -31,7 +31,7 @@ type IssueWithUsername = {
 type IssueResponse = {
     message: string;
     allIssues: Issue[];
-}
+};
 
 type User = {
     user_name: string;
@@ -49,13 +49,25 @@ type UserResponse = {
     };
 };
 
-    
+type ResType = {
+    message: string;
+};
+
+type Payload = {
+    id: number;
+    iat: number;
+    exp: number;
+};
+
 const url: string = "http://127.0.0.1:4000/issues";
 const method: string = "GET";
 const requestHeaders = new Headers();
 requestHeaders.set("Content-Type", "application/json");
 
-async function addUsername(data: Issue[] | null, apiCall: ApiCall): Promise<IssueWithUsername[] | null | undefined> {
+async function addUsername(
+    data: Issue[] | null,
+    apiCall: ApiCall,
+): Promise<IssueWithUsername[] | null | undefined> {
     if (!data) return;
     const issuesWithUsernames: IssueWithUsername[] = await Promise.all(
         data.map(async (issue) => ({
@@ -66,7 +78,10 @@ async function addUsername(data: Issue[] | null, apiCall: ApiCall): Promise<Issu
     return issuesWithUsernames;
 }
 
-async function getUsername(id: number | null, apiCall: ApiCall): Promise<string> {
+async function getUsername(
+    id: number | null,
+    apiCall: ApiCall,
+): Promise<string> {
     if (!id) return "Anonymous";
     try {
         const response: APIResponse = await apiCall<UserResponse>(
@@ -90,13 +105,17 @@ async function fetchData<T>(url: string): Promise<T> {
     return (await res.json()) as T;
 }
 
-async function fetchIssues(ignore: boolean, setError: React.Dispatch<React.SetStateAction<string>>, setData: React.Dispatch<React.SetStateAction<Issue[] | null>>) {
+async function fetchIssues(
+    ignore: boolean,
+    setError: React.Dispatch<React.SetStateAction<string>>,
+    setData: React.Dispatch<React.SetStateAction<Issue[] | null>>,
+) {
     try {
         const response = await fetchData<IssueResponse>(url);
         if (ignore) return;
         setError("");
         setData(response.allIssues);
-    } catch (error: unknown){
+    } catch (error: unknown) {
         if (ignore) return;
 
         let message: string = "";
@@ -112,6 +131,68 @@ async function fetchIssues(ignore: boolean, setError: React.Dispatch<React.SetSt
     }
 }
 
+async function handleDeletePost(
+    postId: number | null,
+    loading: boolean | null,
+    token: string | null,
+    setError: React.Dispatch<React.SetStateAction<string>>,
+    apiCall: <T>(
+        method: string,
+        endpoint: string,
+        headers: Headers,
+        body?: object | undefined,
+    ) => Promise<T>,
+    setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>,
+    setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>,
+): Promise<void> {
+    if (postId === null || loading) return;
+
+    if (!token) {
+        setError("Please sign in before deleting a post.");
+        return;
+    }
+
+    setError("");
+
+    const requestHeaders = new Headers();
+    requestHeaders.set("authorization", token);
+
+    try {
+        const res = await apiCall<ResType>(
+            "DELETE",
+            `issues/${postId}`,
+            requestHeaders,
+        );
+        console.log(postId);
+        console.log(res);
+
+        handleClose(setAnchorEl);
+        setRenderPosts((prev) => !prev);
+    } catch (caughtError) {
+        setError(
+            caughtError instanceof Error
+                ? caughtError.message
+                : "Could not delete the post.",
+        );
+    }
+}
+
+function handleClose(
+    setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>,
+): void {
+    setAnchorEl(null);
+}
+
+function handleMenu(
+    e: React.MouseEvent<HTMLElement>,
+    id: number,
+    setPostId: React.Dispatch<React.SetStateAction<number | null>>,
+    setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>,
+) {
+    setPostId(id);
+    setAnchorEl(e.currentTarget);
+}
+
 function handleDate(data: string): string {
     const date: Date = new Date(data);
     const displayDate = date.toLocaleDateString("en-US", {
@@ -123,10 +204,41 @@ function handleDate(data: string): string {
 }
 
 function organizeData(data: Issue[]): Issue[] | undefined {
-    if(!data) return;
+    if (!data) return;
     return data.toSorted(
-        (a,b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
+        (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
     );
 }
 
-export { addUsername, handleDate, organizeData, fetchIssues, type Issue, type IssueWithUsername };
+function decodeToken(
+    token: string | null,
+    setUserId: React.Dispatch<React.SetStateAction<number>>,
+): void {
+    if(!token)return;
+    const base64URL: string = token.split(".")[1];
+    const base64 = base64URL.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+        window
+            .atob(base64)
+            .split("")
+            .map(function (c) {
+                return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join(""),
+    );
+    const objectPayload: Payload = JSON.parse(jsonPayload);
+    setUserId(objectPayload.id);
+}
+
+export {
+    addUsername,
+    handleDate,
+    organizeData,
+    fetchIssues,
+    handleMenu,
+    handleDeletePost,
+    handleClose,
+    decodeToken,
+    type Issue,
+    type IssueWithUsername,
+};

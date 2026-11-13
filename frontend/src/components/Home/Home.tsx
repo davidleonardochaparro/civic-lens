@@ -10,7 +10,7 @@ export default function Home() {
         <>
             <Navbar />
             <PostIssue renderPosts={renderPosts} setRenderPosts={setRenderPosts}/>
-            <IssueCard renderPosts={renderPosts}/>
+            <IssueCard renderPosts={renderPosts} setRenderPosts={setRenderPosts}/>
         </>
     );
 }

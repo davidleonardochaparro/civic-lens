@@ -99,22 +99,24 @@ const updateIssue = async (req, res) => {
 
 const deleteIssue = async (req, res) => {
 
+    
     const { id } = req.params;
     const userId = req.user.id;
-
+    
     const issue = await Issue.findByPk(id);
-
+    
     if (!issue) {
         return res.status(404).json({
             message: "ID not found."
         });
     }    
-
+    
     if (issue.user_id !== userId) {
         return res.status(403).json({
-            message: "Users can just delete their created issues."
+            message: "Users can just delete their own created issues."
         });
     }
+    console.log('It made it until here');
 
     await issue.destroy();
     
