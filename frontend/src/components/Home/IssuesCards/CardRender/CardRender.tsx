@@ -1,4 +1,4 @@
-import type { CardHeaderProps } from "./Types/Types.ts";
+import type { CardRenderProps } from "./Types/CardRenderTypes.ts";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
@@ -16,18 +16,14 @@ export default function CardRender({
     userId,
     setPostId,
     setAnchorEl,
-    handleMenu,
     anchorEl,
     postId,
-    handleClose,
-    handleDeletePost,
     loading,
     token,
     setError,
     apiCall,
     setRenderPosts,
-    handleDate,
-}: CardHeaderProps) {
+}: CardRenderProps) {
     return (
         <>
             <Card
@@ -40,17 +36,13 @@ export default function CardRender({
                     userId={userId}
                     setPostId={setPostId}
                     setAnchorEl={setAnchorEl}
-                    handleMenu={handleMenu}
                     anchorEl={anchorEl}
                     postId={postId}
-                    handleClose={handleClose}
-                    handleDeletePost={handleDeletePost}
                     loading={loading}
                     token={token}
                     setError={setError}
                     apiCall={apiCall}
                     setRenderPosts={setRenderPosts}
-                    handleDate={handleDate}
                 />
 
                 {issue.user_id && (

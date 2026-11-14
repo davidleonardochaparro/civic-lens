@@ -115,7 +115,6 @@ const deleteIssue = async (req, res) => {
             message: "Users can just delete their own created issues."
         });
     }
-    console.log('It made it until here');
 
     await issue.destroy();
     

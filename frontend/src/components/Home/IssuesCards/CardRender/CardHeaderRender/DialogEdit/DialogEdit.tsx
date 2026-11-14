@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAPI } from "../../../../../../hooks/useAPI";
-import { handleClose } from "../../../functions/functions";
+import { handleClose } from "../Functions/CardHeaderFunctions";
 import type { TransitionProps } from "@mui/material/transitions";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import React from "react";
@@ -30,6 +30,8 @@ type PutBody = {
 type DialogEditProps = {
     openEditDialog: boolean;
     closeEditDialog: () => void;
+    postId: number | null;
+    loading: boolean | null;
     setError: React.Dispatch<React.SetStateAction<string>>;
     setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,6 +49,8 @@ const Transition = React.forwardRef(function Transition(
 export default function DialogEdit({
     openEditDialog,
     closeEditDialog,
+    postId,
+    loading,
     setAnchorEl,
     setRenderPosts,
     setError,
@@ -54,6 +58,7 @@ export default function DialogEdit({
     const [issueEditTitle, setIssueEditTitle] = useState<string>("");
     const [category, setCategory] = useState<string>("");
     const [issueDescription, setIssueDescription] = useState<string>("");
+
     const [token, setToken] = useState<string | null>(() =>
         localStorage.getItem("token"),
     );
@@ -64,12 +69,19 @@ export default function DialogEdit({
 
     const { apiCall } = useAPI();
 
+    // Try passing the body parameters here
     async function handleEditPost(e: React.SubmitEvent<HTMLFormElement>): Promise<void> {
         e.preventDefault();
         if (!token) {
             setError("Please sign in before deleting a post.");
             return;
         }
+        if (!postId) {
+            setError("Issue doesn' have an id");
+            return;
+        }
+        if (loading) return;
+
         setError("");
 
         const formData = new FormData(e.currentTarget);
@@ -85,12 +97,11 @@ export default function DialogEdit({
         const requestHeaders = new Headers();
         requestHeaders.set("Content-Type", "application/json");
         requestHeaders.set("authorization", token);
-        const testId: number = 28;
 
         try {
             const res = await apiCall(
                 "PUT",
-                `issues/${testId}`,
+                `issues/${postId}`,
                 requestHeaders,
                 body
             );
@@ -113,7 +124,7 @@ export default function DialogEdit({
                 open={openEditDialog}
                 onClose={closeEditDialog}
                 slots={{ transition: Transition }}
-                keepMounted
+                
             >
                 <DialogTitle>Issue Details</DialogTitle>
                 <DialogContent>
@@ -133,6 +144,7 @@ export default function DialogEdit({
                             <TextField
                                 id="issue-edit-title"
                                 name="title-edit"
+                                placeholder={'whatever'}
                                 value={issueEditTitle}
                                 onChange={event => {
                                     setIssueEditTitle(event.target.value);

@@ -1,5 +1,10 @@
 import { useState } from "react";
-import type { CardHeaderProps } from "../Types/Types.ts";
+import type { CardRenderProps } from "../Types/CardRenderTypes.ts";
+import {
+    handleClose,
+    handleMenu,
+    handleDate,
+} from "./Functions/CardHeaderFunctions.ts";
 import { red } from "@mui/material/colors";
 import Avatar from "@mui/material/Avatar";
 import CardHeader from "@mui/material/CardHeader";
@@ -11,7 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 
-import DialogRender from "./DialogRender/DialogRender.tsx";
+import DialogRender from "./DialogRender/DialogDelete.tsx";
 import DialogEdit from "./DialogEdit/DialogEdit.tsx"
 
 export default function CardHeaderRender({
@@ -19,18 +24,14 @@ export default function CardHeaderRender({
     userId,
     setPostId,
     setAnchorEl,
-    handleMenu,
     anchorEl,
     postId,
-    handleClose,
-    handleDeletePost,
     loading,
     token,
     setError,
     apiCall,
     setRenderPosts,
-    handleDate,
-}: CardHeaderProps) {
+}: CardRenderProps) {
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
@@ -159,6 +160,8 @@ export default function CardHeaderRender({
                             <DialogEdit
                                 openEditDialog={openEditDialog}
                                 closeEditDialog={closeEditDialog}
+                                postId={postId}
+                                loading={loading}
                                 setAnchorEl={setAnchorEl}
                                 setRenderPosts={setRenderPosts}
                                 setError={setError}
@@ -166,7 +169,6 @@ export default function CardHeaderRender({
                             <DialogRender 
                                 openDialog={openDialog}
                                 handleDialogClose={handleDialogClose}
-                                handleDeletePost={handleDeletePost}
                                 postId={postId}
                                 loading={loading}
                                 token={token}

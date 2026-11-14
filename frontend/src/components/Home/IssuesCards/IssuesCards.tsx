@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
+import type {
+    IssuesCardsProps,
+    Issue,
+    IssueWithUsername,
+} from "./Types/IssuesCardsTypes.ts";
 import {
     addUsername,
-    handleDate,
     organizeData,
     fetchIssues,
-    handleMenu,
-    handleDeletePost,
-    handleClose,
     decodeToken,
-    type Issue,
-    type IssueWithUsername,
-} from "./functions/functions.ts";
-import { useAPI } from "../../../hooks/useAPI";
+} from "./Functions/IssuesCardsFunctions.ts";
+import { useAPI } from "../../../hooks/useAPI.ts";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import CheckIcon from "@mui/icons-material/Check";
@@ -20,15 +19,10 @@ import Typography from "@mui/material/Typography";
 import WarningIcon from "@mui/icons-material/Warning";
 import CardRender from "./CardRender/CardRender.tsx";
 
-type IssueCardProps = {
-    renderPosts: boolean;
-    setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-export default function IssueCard({
+export default function IssuesCards({
     renderPosts,
     setRenderPosts,
-}: IssueCardProps) {
+}: IssuesCardsProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [data, setData] = useState<Issue[] | null>(null);
     const [dataOrganized, setDataOrganized] = useState<
@@ -47,26 +41,14 @@ export default function IssueCard({
 
     const { apiCall, loading } = useAPI();
 
+    // Decode the JWT token
     useEffect(() => {
         if (token) {
             decodeToken(token, setUserId);
         }
     }, [token]);
 
-    useEffect(() => {
-        if (!dataOrganized) return;
-        const loadUsernames = async () => {
-            const result = await addUsername(dataOrganized, apiCall);
-            setDataWithNames(result);
-        };
-        loadUsernames();
-    }, [dataOrganized]);
-
-    useEffect(() => {
-        if (!data) return;
-        setDataOrganized(organizeData(data));
-    }, [data]);
-
+    // Fetches all the issues from the database
     useEffect(() => {
         let ignore: boolean = false;
 
@@ -80,6 +62,22 @@ export default function IssueCard({
         };
 
     }, [renderPosts]);
+
+    // Organize the data to display the most recient post first
+    useEffect(() => {
+        if (!data) return;
+        setDataOrganized(organizeData(data));
+    }, [data]);
+    
+    // Sets the array of post with all the post data AND now the username
+    useEffect(() => {
+        if (!dataOrganized) return;
+        const loadUsernames = async () => {
+            const result = await addUsername(dataOrganized, apiCall);
+            setDataWithNames(result);
+        };
+        loadUsernames();
+    }, [dataOrganized]);
 
     return (
         <>
@@ -98,17 +96,13 @@ export default function IssueCard({
                                 userId={userId}
                                 setPostId={setPostId}
                                 setAnchorEl={setAnchorEl}
-                                handleMenu={handleMenu}
                                 anchorEl={anchorEl}
                                 postId={postId}
-                                handleClose={handleClose}
-                                handleDeletePost={handleDeletePost}
                                 loading={loading}
                                 token={token}
                                 setError={setError}
                                 apiCall={apiCall}
                                 setRenderPosts={setRenderPosts}
-                                handleDate={handleDate}
                             />
                         </div>
                     ))}
