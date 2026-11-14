@@ -1,9 +1,11 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { useAPI } from "../../../../../../hooks/useAPI";
-import { handleClose } from "../Functions/CardHeaderFunctions";
+import {
+    handleChange,
+    handleEditPost,
+} from "./Functions/DialogEditFunctions.ts";
 import type { TransitionProps } from "@mui/material/transitions";
-import type { SelectChangeEvent } from "@mui/material/Select";
-import React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -15,19 +17,15 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import ImgUpload from "./ImgUpload/ImgUpload";
 import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import Slide from "@mui/material/Slide";
 import TextField from "@mui/material/TextField";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 
-type PutBody = {
-    title: string;
-    description: string;
-    category: string;
-    status: string;
-} 
-
 type DialogEditProps = {
+    initTitle: string;
+    initCategory: string;
+    initDescription: string;
     openEditDialog: boolean;
     closeEditDialog: () => void;
     postId: number | null;
@@ -47,6 +45,9 @@ const Transition = React.forwardRef(function Transition(
 });
 
 export default function DialogEdit({
+    initTitle,
+    initCategory,
+    initDescription,
     openEditDialog,
     closeEditDialog,
     postId,
@@ -55,68 +56,18 @@ export default function DialogEdit({
     setRenderPosts,
     setError,
 }: DialogEditProps) {
-    const [issueEditTitle, setIssueEditTitle] = useState<string>("");
-    const [category, setCategory] = useState<string>("");
-    const [issueDescription, setIssueDescription] = useState<string>("");
+    
+    const [issueEditTitle, setIssueEditTitle] = useState<string | null>(null);
+    const [category, setCategory] = useState<string | null>(null);
+    const [issueDescription, setIssueDescription] = useState<string | null>(
+        null,
+    );
 
     const [token, setToken] = useState<string | null>(() =>
         localStorage.getItem("token"),
     );
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setCategory(event.target.value);
-    };
-
     const { apiCall } = useAPI();
-
-    // Try passing the body parameters here
-    async function handleEditPost(e: React.SubmitEvent<HTMLFormElement>): Promise<void> {
-        e.preventDefault();
-        if (!token) {
-            setError("Please sign in before deleting a post.");
-            return;
-        }
-        if (!postId) {
-            setError("Issue doesn' have an id");
-            return;
-        }
-        if (loading) return;
-
-        setError("");
-
-        const formData = new FormData(e.currentTarget);
-        const formJson = Object.fromEntries((formData as any).entries());
-
-        const body: PutBody = {
-            title: issueEditTitle,
-            description: issueDescription,
-            category: category,
-            status: 'created',
-        }
-
-        const requestHeaders = new Headers();
-        requestHeaders.set("Content-Type", "application/json");
-        requestHeaders.set("authorization", token);
-
-        try {
-            const res = await apiCall(
-                "PUT",
-                `issues/${postId}`,
-                requestHeaders,
-                body
-            );
-            console.log(res);
-            handleClose(setAnchorEl);
-            setRenderPosts((prev) => !prev);
-            closeEditDialog();
-        } catch (caughtError) {
-            setError(
-                caughtError instanceof Error
-                    ? caughtError.message
-                    : "Could not delete the post.",
-            );
-        }
-    }
 
     return (
         <>
@@ -124,7 +75,6 @@ export default function DialogEdit({
                 open={openEditDialog}
                 onClose={closeEditDialog}
                 slots={{ transition: Transition }}
-                
             >
                 <DialogTitle>Issue Details</DialogTitle>
                 <DialogContent>
@@ -132,7 +82,25 @@ export default function DialogEdit({
                         Edit the issue's title, category, description and an
                         optional image.
                     </DialogContentText>
-                    <form onSubmit={handleEditPost} id="issue-edit-form">
+                    <form
+                        onSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                            handleEditPost(
+                                e,
+                                token,
+                                setError,
+                                postId,
+                                loading,
+                                issueEditTitle,
+                                category,
+                                issueDescription,
+                                apiCall,
+                                setAnchorEl,
+                                setRenderPosts,
+                                closeEditDialog,
+                            );
+                        }}
+                        id="issue-edit-form"
+                    >
                         <Box
                             sx={{
                                 display: "flex",
@@ -144,9 +112,10 @@ export default function DialogEdit({
                             <TextField
                                 id="issue-edit-title"
                                 name="title-edit"
-                                placeholder={'whatever'}
-                                value={issueEditTitle}
-                                onChange={event => {
+                                placeholder={"whatever"}
+                                value={issueEditTitle ?? initTitle}
+                                // value={initTitle}
+                                onChange={(event) => {
                                     setIssueEditTitle(event.target.value);
                                 }}
                                 label="Issue title"
@@ -160,7 +129,6 @@ export default function DialogEdit({
                                 sx={{ m: 2, minWidth: 120 }}
                                 margin="dense"
                                 fullWidth
-                                
                             >
                                 <InputLabel id="demo-edit-select-standard-label">
                                     Category
@@ -168,8 +136,9 @@ export default function DialogEdit({
                                 <Select
                                     labelId="demo-edit-select-standard-label"
                                     id="demo-edit-select-standard-label"
-                                    value={category}
-                                    onChange={handleChange}
+                                    value={category ?? initCategory}
+                                    onChange={(e: SelectChangeEvent) => {handleChange(e, setCategory)}}
+                                    required
                                 >
                                     <MenuItem value="community">
                                         Community
@@ -192,14 +161,14 @@ export default function DialogEdit({
                                 </DialogContentText>
                                 <TextareaAutosize
                                     aria-label="minimum height"
-                                    value={issueDescription}
+                                    value={issueDescription ?? initDescription}
                                     onChange={(e) => {
                                         setIssueDescription(e.target.value);
                                     }}
                                     minRows={3}
                                     placeholder=" Write the description here..."
                                     style={{ width: "100%" }}
-                                    
+                                    required
                                 />
                             </Box>
 
@@ -229,11 +198,7 @@ export default function DialogEdit({
                             pr: "1rem",
                         }}
                     >
-                        <Button
-                            onClick={closeEditDialog}
-                        >
-                            Cancel
-                        </Button>
+                        <Button onClick={closeEditDialog}>Cancel</Button>
                         <Button
                             type="submit"
                             form="issue-edit-form"

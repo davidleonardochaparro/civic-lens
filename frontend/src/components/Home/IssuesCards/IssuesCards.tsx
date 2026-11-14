@@ -23,6 +23,8 @@ export default function IssuesCards({
     renderPosts,
     setRenderPosts,
 }: IssuesCardsProps) {
+
+    //State variables
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [data, setData] = useState<Issue[] | null>(null);
     const [dataOrganized, setDataOrganized] = useState<
@@ -39,6 +41,7 @@ export default function IssuesCards({
     const [userId, setUserId] = useState<number>(0);
     const [postId, setPostId] = useState<number | null>(null);
 
+    // Hook call
     const { apiCall, loading } = useAPI();
 
     // Decode the JWT token

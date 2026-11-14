@@ -19,6 +19,23 @@ import Typography from "@mui/material/Typography";
 import DialogRender from "./DialogRender/DialogDelete.tsx";
 import DialogEdit from "./DialogEdit/DialogEdit.tsx"
 
+type ResponseGetAPI = {
+    message: string;
+    issueObject: IssueObject;
+}
+
+type IssueObject = {
+    category: "string";
+    createdAt: "string";
+    description: "string";
+    id: number;
+    status: "string";
+    title: "string";
+    updatedAt: "string";
+    user_id: number;
+    votes: number;
+}
+
 export default function CardHeaderRender({
     issue,
     userId,
@@ -35,6 +52,33 @@ export default function CardHeaderRender({
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
+    const [initTitle, setInitTitle] = useState<string>("");
+    const [initCategory, setInitCategory] = useState<string>("");
+    const [initDescription, setInitDescription] = useState<string>("");
+
+    async function getPostValues(): Promise<void> {
+        if(!token) return;
+        if(!postId) return;
+        if(loading) return;
+        setError("");
+        const requestHeaders = new Headers();
+        requestHeaders.set("Content-Type", "application/json");
+
+        try {
+            const response: ResponseGetAPI = await apiCall("GET", `issues/${postId}`, requestHeaders);
+            setInitTitle(response.issueObject.title);
+            setInitCategory(response.issueObject.category);
+            setInitDescription(response.issueObject.description);
+            
+        } catch (requestErr) {
+            setError(
+                requestErr instanceof Error
+                    ? requestErr.message
+                    : "Could not fetch the post info."
+            );
+        }
+
+    }
     
         function handleDialogOpen() {
             handleClose(setAnchorEl);
@@ -49,12 +93,14 @@ export default function CardHeaderRender({
         function editDialogOpen() {
             handleClose(setAnchorEl);
             setOpenEditDialog(true);
+            getPostValues();
         }
 
         function closeEditDialog() {
             setOpenEditDialog(false);
             handleClose(setAnchorEl);
         }
+        
     return (
         <>
             <CardHeader
@@ -158,6 +204,9 @@ export default function CardHeaderRender({
                                 </IconButton>
                             </Menu>
                             <DialogEdit
+                                initTitle={initTitle}
+                                initCategory={initCategory}
+                                initDescription={initDescription}
                                 openEditDialog={openEditDialog}
                                 closeEditDialog={closeEditDialog}
                                 postId={postId}
