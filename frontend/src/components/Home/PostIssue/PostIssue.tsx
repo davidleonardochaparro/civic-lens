@@ -4,24 +4,24 @@ import { Link } from "react-router";
 import { useAPIPost } from "../../../hooks/useAPIPost.ts";
 import type { TransitionProps } from "@mui/material/transitions";
 import type { SelectChangeEvent } from "@mui/material/Select";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CloseIcon from "@mui/icons-material/Close";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
+import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
-import Box from "@mui/material/Box";
+import InputLabel from "@mui/material/InputLabel";
+import ImgUpload from "./ImgUpload/ImgUpload";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Slide from "@mui/material/Slide";
 import TextField from "@mui/material/TextField";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import Slide from "@mui/material/Slide";
-import ImgUpload from "./ImgUpload/ImgUpload";
-import Alert from "@mui/material/Alert";
 
 type PostIssueProps = {
     renderPosts: boolean;
@@ -231,7 +231,7 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
                         }}
                     >
                         <Button
-                            type="submit"
+                            type="submit"   
                             form="issue-form"
                             variant="contained"
                             sx={{

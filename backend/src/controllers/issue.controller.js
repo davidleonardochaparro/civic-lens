@@ -99,7 +99,6 @@ const updateIssue = async (req, res) => {
 
 const deleteIssue = async (req, res) => {
 
-    
     const { id } = req.params;
     const userId = req.user.id;
     

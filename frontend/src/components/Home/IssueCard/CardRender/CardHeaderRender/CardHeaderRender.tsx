@@ -10,7 +10,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
+
 import DialogRender from "./DialogRender/DialogRender.tsx";
+import DialogEdit from "./DialogEdit/DialogEdit.tsx"
 
 export default function CardHeaderRender({
     issue,
@@ -31,8 +33,10 @@ export default function CardHeaderRender({
 }: CardHeaderProps) {
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
     
         function handleDialogOpen() {
+            handleClose(setAnchorEl);
             setOpenDialog(true);
         }
     
@@ -40,6 +44,16 @@ export default function CardHeaderRender({
             setOpenDialog(false);
             handleClose(setAnchorEl);
         };
+        
+        function editDialogOpen() {
+            handleClose(setAnchorEl);
+            setOpenEditDialog(true);
+        }
+
+        function closeEditDialog() {
+            setOpenEditDialog(false);
+            handleClose(setAnchorEl);
+        }
     return (
         <>
             <CardHeader
@@ -94,13 +108,16 @@ export default function CardHeaderRender({
                                         justifyContent: "center",
                                         alignItems: "center",
                                     }}
+                                    onClick={editDialogOpen}
+                                    disabled={Boolean(loading)}
                                 >
                                     <MenuItem
                                         sx={{
                                             p: 1,
+                                            pr: 4,
                                             display: "flex",
                                             flexDirection: "row",
-                                            justifyContent: "center",
+                                            justifyContent: "start",
                                             alignItems: "center",
                                             gap: 0.2,
                                         }}
@@ -138,19 +155,26 @@ export default function CardHeaderRender({
                                         <Typography>Delete</Typography>
                                     </MenuItem>
                                 </IconButton>
-                                <DialogRender 
-                                    openDialog={openDialog}
-                                    handleDialogClose={handleDialogClose}
-                                    handleDeletePost={handleDeletePost}
-                                    postId={postId}
-                                    loading={loading}
-                                    token={token}
-                                    setError={setError}
-                                    apiCall={apiCall}
-                                    setAnchorEl={setAnchorEl}
-                                    setRenderPosts={setRenderPosts}
-                                />
                             </Menu>
+                            <DialogEdit
+                                openEditDialog={openEditDialog}
+                                closeEditDialog={closeEditDialog}
+                                setAnchorEl={setAnchorEl}
+                                setRenderPosts={setRenderPosts}
+                                setError={setError}
+                            />
+                            <DialogRender 
+                                openDialog={openDialog}
+                                handleDialogClose={handleDialogClose}
+                                handleDeletePost={handleDeletePost}
+                                postId={postId}
+                                loading={loading}
+                                token={token}
+                                setError={setError}
+                                apiCall={apiCall}
+                                setAnchorEl={setAnchorEl}
+                                setRenderPosts={setRenderPosts}
+                            />
                         </>
                     )
                 }

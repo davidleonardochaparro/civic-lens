@@ -167,7 +167,7 @@ async function handleDeletePost(
         console.log(res);
 
         handleClose(setAnchorEl);
-        setRenderPosts((prev) => !prev);
+        setRenderPosts(prev => !prev);
     } catch (caughtError) {
         setError(
             caughtError instanceof Error
