@@ -4,15 +4,13 @@ const { User } = require("../schemas/user.model");
 
 let validateSession = (req, res, next) => {
     
-    
     if (req.method === "OPTIONS") {
         next();
     }
-
     
     if (!req.headers.authorization) {
         return res.status(403).json({
-            message: "Forbidden auth"
+            message: "Forbidden, no authorization"
         });
     }
     

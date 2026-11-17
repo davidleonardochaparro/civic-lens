@@ -31,4 +31,17 @@ const bodyNormalized = (req, res, next) => {
     next();
 }
 
-module.exports = { entriesValidation, bodyNormalized };
+const voteValidation = (req, res, next) => {
+    const { votes } = req.body;
+    if (!votes) {
+        return res.status(400).json({
+            message: "No votes were sent, empty body."
+        });
+    }
+    
+    const newVotes = {votes};
+    req.newVotes = newVotes;
+    next();
+}
+
+module.exports = { entriesValidation, bodyNormalized, voteValidation };

@@ -65,7 +65,7 @@ export default function CardHeaderRender({
         requestHeaders.set("Content-Type", "application/json");
 
         try {
-            const response: ResponseGetAPI = await apiCall("GET", `issues/${postId}`, requestHeaders);
+            const response: ResponseGetAPI = await apiCall('GET', `issues/${postId}`, requestHeaders);
             setInitTitle(response.issueObject.title);
             setInitCategory(response.issueObject.category);
             setInitDescription(response.issueObject.description);

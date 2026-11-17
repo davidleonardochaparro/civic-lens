@@ -58,6 +58,10 @@ export default function CardRender({
                 </CardContent>
                 <CardActionsRender
                     issue={issue}
+                    apiCall={apiCall}
+                    loading={loading}
+                    setError={setError}
+                    userId={userId}
                 />
             </Card>
         </>

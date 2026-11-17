@@ -59,6 +59,14 @@ const updateIssue = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
 
+    const numericId = Number(id);
+
+    if (!Number.isInteger(numericId)) {
+        return res.status(400).json({
+            message: "Malformed param."
+        });
+    }
+
     const issue = await Issue.findByPk(id);
 
     if (!issue) {
@@ -124,4 +132,44 @@ const deleteIssue = async (req, res) => {
     });
 }
 
-module.exports = {getIssues, issueByID, createIssue, updateIssue, deleteIssue};
+const voteIssue = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const numericId = Number(id);
+
+    if (!Number.isInteger(numericId)) {
+        return res.status(400).json({
+            message: "Malformed param."
+        });
+    }
+
+    const issue = await Issue.findByPk(id);
+
+    if (!issue) {
+        return res.status(404).json({
+            message: "ID not found."
+        });
+    }
+
+    if (issue.user_id === userId) {
+        return res.status(403).json({
+            message: "Users can't update their own votes."
+        });
+    }
+
+    const { votes } = req.newVotes;
+    
+    const updateIssue = {
+        votes: votes === 'true' ? issue.votes + 1: issue.votes - 1
+    }
+
+    await issue.update(updateIssue);
+
+    res.status(200).json({
+        message: `Reached the ${req.method} route, from ${req.originalUrl} updated the issue's votes`,
+        updatedIssue: issue
+    });
+}
+
+module.exports = {getIssues, issueByID, createIssue, updateIssue, deleteIssue, voteIssue};

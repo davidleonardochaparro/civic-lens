@@ -12,10 +12,12 @@ type APIPostReturn = {
 }
 
 export const useAPI = (): APIPostReturn => {
+
     const [loading, setLoading] = useState<boolean | null>(null);
     const [err, setErr] = useState<boolean | null | unknown>(null)
 
     const apiCall = useCallback(async <T>(method: string, endpoint: string, headers: Headers, body?: object): Promise<T> => {
+
         setLoading(true);
         setErr(null);
 
@@ -28,6 +30,7 @@ export const useAPI = (): APIPostReturn => {
                     headers,
                     body: JSON.stringify(body)
                 });
+                
                 const data: APIRes = await res.json();
     
                 if (!res.ok) throw new Error(data.message || "Request failed");
@@ -40,6 +43,7 @@ export const useAPI = (): APIPostReturn => {
                 method: method,
                 headers
             });
+
             const data: APIRes = await res.json();
 
             if (!res.ok) throw new Error(data.message || "Request failed");
@@ -47,11 +51,16 @@ export const useAPI = (): APIPostReturn => {
             return data as T;
 
         } catch (err) {
+            
             setErr(err instanceof Error ? err.message: 'Unknown error occurred');
             throw err;
+
         } finally {
+
             setLoading(false);
+
         }
+
     }, []);
 
     return { apiCall, loading, err}
