@@ -13,11 +13,12 @@ type CardActionsProps = {
     loading: boolean | null;
     setError: React.Dispatch<React.SetStateAction<string>>;
     userId: number;
+    token: string | null;
 }
 
-type ResponseGetAPI = {
+type ResponsePUTAPI = {
     message: string;
-    issueObject: IssueObject;
+    updatedIssue: IssueObject;
 }
 
 type IssueObject = {
@@ -32,10 +33,17 @@ type IssueObject = {
     votes: number;
 }
 
-export default function CardActionsRender({ issue, apiCall, loading, setError, userId }: CardActionsProps) {
+type PutBody = {
+    votes: string;
+}
+
+export default function CardActionsRender({ issue, apiCall, loading, setError, userId, token }: CardActionsProps) {
 
     const [postUser, setPostUser] = useState<number | null>(null);
+    const [likeFlag, setLikeFlag] = useState<boolean | null>(null);
+    const [issueId, setIssueId] = useState<number | null>(null);
 
+    /*
     async function handleLike(id: number) {
         console.log('Session user: ', userId);
         if(loading)return;
@@ -54,6 +62,86 @@ export default function CardActionsRender({ issue, apiCall, loading, setError, u
             );
         }
     }   
+    */
+    function changeLikeFlag(issueId: number) {
+        setIssueId(issueId);
+        setLikeFlag(prev => !prev);
+    }
+
+    /*
+    async function handleLike(issueId: number) {
+        if(!token)return;
+        if(loading)return;
+        setError("");
+        setLikeFlag(prev => !prev);
+        const endpoint: string = `issues/vote/${issueId}`;
+        const requestHeaders = new Headers();
+        requestHeaders.set("Content-Type", "application/json");
+        requestHeaders.set("authorization", token);
+        const body: PutBody = {
+            votes: String(likeFlag)
+        }
+        try {
+            const response: ResponsePUTAPI = await apiCall(
+                'PUT', 
+                endpoint, 
+                requestHeaders,
+                body,
+            );
+            console.log(response);
+            // Reload the posts
+            // Change heart colour
+
+        } catch (requestError) {
+            const message = requestError instanceof Error 
+                ? requestError.message
+                : 'Could not make the request';
+            console.error(message);
+            setError(message);
+        }
+        
+    }
+    */
+
+    useEffect(() => {
+
+        if (likeFlag===null) return;
+
+        async function handleLike() {
+
+            if(!token)return;
+            if(loading)return;
+            setError("");
+            const endpoint: string = `issues/vote/${issueId}`;
+            const requestHeaders = new Headers();
+            requestHeaders.set("Content-Type", "application/json");
+            requestHeaders.set("authorization", token);
+            const body: PutBody = {
+                votes: String(likeFlag)
+            }
+            try {
+                const response: ResponsePUTAPI = await apiCall(
+                    'PUT', 
+                    endpoint, 
+                    requestHeaders,
+                    body,
+                );
+                console.log(response);
+                // Reload the posts
+                // Change heart colour
+
+            } catch (requestError) {
+                const message = requestError instanceof Error 
+                    ? requestError.message
+                    : 'Could not make the request';
+                console.error(message);
+                setError(message);
+            }
+
+        }
+        handleLike();
+
+    }, [likeFlag]);
 
     return (
         <>
@@ -73,7 +161,8 @@ export default function CardActionsRender({ issue, apiCall, loading, setError, u
                         }}
                     >
                         <IconButton aria-label="like the content"
-                            onClick={() => {handleLike(issue.id)}}
+                            // onClick={() => {handleLike(issue.id)}}
+                            onClick={() => {changeLikeFlag(issue.id)}}
                             disabled={userId === issue.user_id ? true : false}
                         >
                             <FavoriteIcon />

@@ -22,7 +22,7 @@ let validateSession = (req, res, next) => {
         if (err) {
             console.error(err);
             return res.status(403).json({
-                message: "Forbidden expired"
+                message: 'Token expired'
             });
         }
         const user = await User.findByPk(payload.id);

@@ -62,6 +62,7 @@ export default function CardRender({
                     loading={loading}
                     setError={setError}
                     userId={userId}
+                    token={token}
                 />
             </Card>
         </>
