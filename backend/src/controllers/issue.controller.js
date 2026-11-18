@@ -1,7 +1,60 @@
+const { Op, fn, col } = require("sequelize");
+const { db } = require("../db");
 const { Issue } = require("../schemas/issue.model");
+const { IssueVote } = require("../schemas/issueVote.model");
+
+async function readIssues(issueId = null) {
+    // An empty filter fetches all issues
+    const where = {};
+    if (issueId !== null) {
+        where.id = issueId;
+    }
+
+    const issues = await Issue.findAll({
+        where,
+        attributes: { exclude: ["votes"] },
+        raw: true,
+    });
+
+    if (issues.length === 0) {
+        return [];
+    }
+
+    const issueIds = issues.map( issue => issue.id);
+    const countVotes = fn("COUNT", col("issue_id"));
+
+    // Get one count for each requested issue that has votes
+    const voteCounts = await IssueVote.findAll({
+        attributes: ["issue_id", [countVotes, "votes"]],
+        where: {
+            issue_id: { [Op.in]: issueIds},
+        },
+        group: ["issue_id"],
+        raw: true,
+    });
+
+    // Store each count under its issue ID
+    const votesByIssue = new Map();
+    for (const row of voteCounts) {
+        votesByIssue.set(row.issue_id, Number(row.votes));
+    }
+
+    return issues.map( issue => {
+        const votes = votesByIssue.get(issue.id) ?? 0;
+
+        return {
+            ...issue,
+            votes,
+            hasVoted: false,
+        };
+    });
+}
 
 const getIssues = async (req, res) => {
-    const allIssues = await Issue.findAll();
+
+    // const allIssues = await Issue.findAll();
+
+    const allIssues = await readIssues();
 
     /*
         if (!allIssues.length) {
@@ -27,7 +80,9 @@ const issueByID = async (req, res) => {
             message: "Malformed param."
         });
     }
-    const issue = await Issue.findByPk(id);
+
+    // const issue = await Issue.findByPk(id);
+    const [issue] = await readIssues(numericId);
 
     if (!issue) {
         return res.status(404).json({
@@ -94,7 +149,6 @@ const updateIssue = async (req, res) => {
         description: description ?? issue.description,
         category: category ?? issue.category,
         status: status ?? issue.status,
-        votes: votes ?? issue.votes
     };
 
     await issue.update(updatedIssue);
@@ -172,4 +226,76 @@ const voteIssue = async (req, res) => {
     });
 }
 
-module.exports = {getIssues, issueByID, createIssue, updateIssue, deleteIssue, voteIssue};
+async function setIssueVote(req, res) {
+    const { id } = req.params;
+    const issueId = Number(id);
+
+    if (!/^\d+$/.test(id) || issueId < 1 || issueId > 2147483647) {
+        return res.status(400).json({ message: "Invalid issue ID." });
+    }
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(403).json({ message: "A valid session is required"});
+    }
+
+    const result = await db.transaction(async (transaction) => {
+        // Lock the issue so ita cannot be deleted during the vote
+        const issue = await Issue.findByPk(issueId, {
+            attributes: ["id", "user_id"],
+            transaction,
+            lock: transaction.LOCK.SHARE,
+        });
+
+        if (!issue) {
+            return { status: 404, body: { message: "ID not found." } };
+        }
+
+        if (issue.user_id === userId) {
+            return {
+                status: 403,
+                body: { message: "You cannot vote on your own issue."},
+            };
+        }
+
+        const vote = {
+            issue_id: issueId,
+            user_id: userId,
+        };
+
+        if (req.method === "PUT") {
+            // Insert one vote. A repeated like leaves the existing row in place
+            await IssueVote.bulkCreate([vote], {
+                ignoreDuplicates: true,
+                transaction,
+            });
+        } else {
+            // DELETE removes only this user's vote on this issue
+            await IssueVote.destroy({
+                where: vote,
+                transaction,
+            });
+        }
+
+        const voteRows = await IssueVote.findAll({
+            where: { issue_id: issueId },
+            attributes: ["user_id"],
+            raw: true,
+            transaction,
+        });
+
+        const votes = voteRows.length;
+        const hasVoted = voteRows.some( row => row.user_id === userId);
+
+        return {
+            status: 200,
+            body: { id: issueId, votes, hasVoted },
+        };
+    });
+
+    return res.status(result.status).json(result.body);
+}
+
+
+module.exports = { getIssues, issueByID, createIssue, updateIssue, deleteIssue, voteIssue, setIssueVote };
