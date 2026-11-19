@@ -12,7 +12,6 @@ async function readIssues(issueId = null) {
 
     const issues = await Issue.findAll({
         where,
-        attributes: { exclude: ["votes"] },
         raw: true,
     });
 
@@ -101,6 +100,9 @@ const createIssue = async (req, res) => {
     const newIssue = await Issue.create({
         ...req.newIssue,
         user_id: req.user.id
+    },
+    {
+        fields: ["title", "description", "category", "status", "user_id"]
     });
 
     res.status(201).json({
@@ -136,13 +138,7 @@ const updateIssue = async (req, res) => {
         });
     }
 
-    const { title, description, category, status, votes} = req.newIssue;
-
-    if (votes) {
-        return res.status(403).json({
-            message: "Users cannot update the votes from their own issues."
-        });
-    }
+    const { title, description, category, status} = req.newIssue;
 
     const updatedIssue = {
         title: title ?? issue.title,
@@ -186,46 +182,6 @@ const deleteIssue = async (req, res) => {
     });
 }
 
-const voteIssue = async (req, res) => {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    const numericId = Number(id);
-
-    if (!Number.isInteger(numericId)) {
-        return res.status(400).json({
-            message: "Malformed param."
-        });
-    }
-
-    const issue = await Issue.findByPk(id);
-
-    if (!issue) {
-        return res.status(404).json({
-            message: "ID not found."
-        });
-    }
-
-    if (issue.user_id === userId) {
-        return res.status(403).json({
-            message: "Users can't update their own votes."
-        });
-    }
-
-    const { votes } = req.newVotes;
-    
-    const updateIssue = {
-        votes: votes === 'true' ? issue.votes + 1: issue.votes - 1
-    }
-
-    await issue.update(updateIssue);
-
-    res.status(200).json({
-        message: `Reached the ${req.method} route, from ${req.originalUrl} updated the issue's votes`,
-        updatedIssue: issue
-    });
-}
-
 async function setIssueVote(req, res) {
     const { id } = req.params;
     const issueId = Number(id);
@@ -241,7 +197,7 @@ async function setIssueVote(req, res) {
     }
 
     const result = await db.transaction(async (transaction) => {
-        // Lock the issue so ita cannot be deleted during the vote
+        // Lock the issue so it cannot be deleted during the vote
         const issue = await Issue.findByPk(issueId, {
             attributes: ["id", "user_id"],
             transaction,
@@ -297,5 +253,25 @@ async function setIssueVote(req, res) {
     return res.status(result.status).json(result.body);
 }
 
+async function getMyIssueVotes(req, res) {
+    const userId = req.user?.id;
 
-module.exports = { getIssues, issueByID, createIssue, updateIssue, deleteIssue, voteIssue, setIssueVote };
+    if (!userId) {
+        return res.status(403).json({message: "A valid session is required."});
+    }
+
+    const votes = await IssueVote.findAll({
+        where: { user_id: userId },
+        attributes: ["issue_id"],
+        raw: true,
+    });
+
+    const issueIds = votes.map((vote) => vote.issue_id);
+
+    res.set("Cache-Control", "private, no-store");
+    return res.status(200).json({ issueIds});
+
+}
+
+
+module.exports = { getIssues, issueByID, createIssue, updateIssue, deleteIssue, setIssueVote, getMyIssueVotes };

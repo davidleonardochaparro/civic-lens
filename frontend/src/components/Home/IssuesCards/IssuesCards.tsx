@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import type {
-    IssuesCardsProps,
     Issue,
+    IssuesCardsProps,
     IssueWithUsername,
+    VoteResponse,
 } from "./Types/IssuesCardsTypes.ts";
 import {
     addUsername,
@@ -35,7 +36,7 @@ export default function IssuesCards({
     >(null);
 
     const [error, setError] = useState<string>("");
-    const [token, setToken] = useState<string | null>(() =>
+    const [token] = useState<string | null>(() =>
         localStorage.getItem("token"),
     );
     const [userId, setUserId] = useState<number>(0);
@@ -43,6 +44,26 @@ export default function IssuesCards({
 
     // Hook call
     const { apiCall, loading } = useAPI();
+
+    function handleVoteUpdated(response: VoteResponse) {
+        setDataWithNames( currentIssues => {
+            if (!currentIssues) {
+                return currentIssues;
+            }
+
+            return currentIssues.map( issue => {
+                if (issue.id !== response.id) {
+                    return issue;
+                }
+
+                return {
+                    ...issue,
+                    votes: response.votes,
+                    hasVoted: response.hasVoted,
+                };
+            });
+        })
+    }
 
     // Decode the JWT token
     useEffect(() => {
@@ -53,18 +74,18 @@ export default function IssuesCards({
 
     // Fetches all the issues from the database
     useEffect(() => {
-        let ignore: boolean = false;
+        const controller = new AbortController();
 
         setData(null);
         setError("");
 
-        fetchIssues(ignore, setError, setData);
+        void fetchIssues(token, controller.signal, setError, setData);
 
         return () => {
-            ignore = true;
+            controller.abort();
         };
 
-    }, [renderPosts]);
+    }, [renderPosts, token]);
 
     // Organize the data to display the most recient post first
     useEffect(() => {
@@ -106,6 +127,7 @@ export default function IssuesCards({
                                 setError={setError}
                                 apiCall={apiCall}
                                 setRenderPosts={setRenderPosts}
+                                handleVoteUpdated={handleVoteUpdated}
                             />
                         </div>
                     ))}

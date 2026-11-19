@@ -13,6 +13,7 @@ type Issue = {
     username?: string;
     createdAt: string;
     updatedAt: string;
+    hasVoted: boolean;
 };
 
 type IssueWithUsername = {
@@ -26,12 +27,19 @@ type IssueWithUsername = {
     username?: string;
     createdAt: string;
     updatedAt: string;
+    hasVoted: boolean;
 };
 
 type IssueResponse = {
     message: string;
     allIssues: Issue[];
 };
+
+type VoteResponse = {
+    id: number;
+    votes: number;
+    hasVoted: boolean;
+}
 
 type APIResponse = {
     message: string;
@@ -67,6 +75,7 @@ export type {
     IssueWithUsername,
     IssuesCardsProps, 
     IssueResponse, 
+    VoteResponse,
     User, 
     APIResponse,
     UserResponse, 

@@ -1,4 +1,4 @@
-const attributesValidation = (title, description, category, status, votes) => {
+const attributesValidation = (title, description, category, status) => {
     if (!title) {
         return { error: { status: 422, message: "Missing title."} };
     }
@@ -19,13 +19,11 @@ const attributesValidation = (title, description, category, status, votes) => {
         return { error: { status: 422, message: "Missing status." } };
     }
     status = status.trim();
-    if (votes === null || votes === undefined) {
-        return { error: { status: 422, message: "Missing votes."} };
-    }
-    return { data: { title, description, category, status, votes } };
+
+    return { data: { title, description, category, status } };
 }
 
-const norm = (title, description, category, status, votes) => {
+const norm = (title, description, category, status) => {
     if (title) {
         title = title.trim();
     }
@@ -43,9 +41,9 @@ const norm = (title, description, category, status, votes) => {
         status = status.trim();
     }
 
-    if (!title && !description && !category && !status && !votes) {
+    if (!title && !description && !category && !status) {
         return { error: { status: 403, message: "Empty body." } };
     }
-    return { data: { title, description, category, status, votes } };
+    return { data: { title, description, category, status } };
 }
 module.exports = { attributesValidation, norm };

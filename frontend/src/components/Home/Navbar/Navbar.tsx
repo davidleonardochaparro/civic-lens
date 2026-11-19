@@ -16,7 +16,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 
 export default function Navbar() {
 
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+    const [token] = useState<string | null>(() => localStorage.getItem("token"));
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {

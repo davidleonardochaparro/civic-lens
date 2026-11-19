@@ -38,7 +38,6 @@ type PostBody = {
     description: string;
     category: string;
     status: string;
-    votes: number;
 };
 
 type APIResponse = {
@@ -55,14 +54,14 @@ const Transition = React.forwardRef(function Transition(
 });
 
 
-function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleDialogProps) {
+function SimpleDialog({ setRenderPosts, open, handleClose}: SimpleDialogProps) {
     const [issueTitle, setIssueTitle] = useState<string>("");
     const [category, setCategory] = useState<string>("");
     const [issueDescription, setIssueDescription] = useState<string>("");
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+    const [token] = useState<string | null>(() => localStorage.getItem("token"));
     const [alert, setAlert] = useState<boolean>(false);
 
-    const { post, loading, error } = useAPIPost();
+    const { post } = useAPIPost();
 
     const requestHeaders = new Headers();
         
@@ -75,17 +74,12 @@ function SimpleDialog({ renderPosts, setRenderPosts, open, handleClose}: SimpleD
         setAlert(false);
         event.preventDefault();
 
-        const formData = new FormData(event.currentTarget);
-        const formJson = Object.fromEntries((formData as any).entries());
-        const title = formJson.title;
-
         const endpoint: string = "issues";
         const body: PostBody = {
             title: issueTitle,
             description: issueDescription,
             category: category,
-            status: "created",
-            votes: 0,
+            status: "created"
         };
         
         if (!token) {

@@ -1,4 +1,5 @@
 import type { CardRenderProps } from "./Types/CardRenderTypes.ts";
+import type { VoteResponse } from "../Types/IssuesCardsTypes.ts";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
@@ -6,6 +7,10 @@ import streetlight from "../assets/streetlight.jpg";
 import Typography from "@mui/material/Typography";
 import CardHeaderRender from "./CardHeaderRender/CardHeaderRender.tsx";
 import CardActionsRender from "./CardActionsRender/CardActionsRender.tsx";
+
+type CardProps = CardRenderProps & {
+    handleVoteUpdated: (response: VoteResponse) => void;
+};
 export default function CardRender({
     issue,
     userId,
@@ -18,7 +23,8 @@ export default function CardRender({
     setError,
     apiCall,
     setRenderPosts,
-}: CardRenderProps) {
+    handleVoteUpdated,
+}: CardProps) {
     return (
         <>
             <Card
@@ -59,10 +65,10 @@ export default function CardRender({
                 <CardActionsRender
                     issue={issue}
                     apiCall={apiCall}
-                    loading={loading}
                     setError={setError}
                     userId={userId}
                     token={token}
+                    handleVoteUpdated={handleVoteUpdated}
                 />
             </Card>
         </>

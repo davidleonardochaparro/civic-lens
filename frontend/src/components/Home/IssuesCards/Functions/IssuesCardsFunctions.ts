@@ -45,35 +45,53 @@ async function getUsername(
 
 // Saves the fetched issues in 'data' state variable
 async function fetchIssues(
-    ignore: boolean,
+    token: string | null,
+    signal: AbortSignal,
     setError: React.Dispatch<React.SetStateAction<string>>,
     setData: React.Dispatch<React.SetStateAction<Issue[] | null>>,
 ) {
     try {
-        const url: string = "http://127.0.0.1:4000/issues";
-        const response = await fetchData<IssueResponse>(url);
-        if (ignore) return;
-        setError("");
-        setData(response.allIssues);
-    } catch (error: unknown) {
-        if (ignore) return;
+        const baseUrl: string = "http://127.0.0.1:4000";
+        const { allIssues } = await fetchData<IssueResponse>(
+            `${baseUrl}/issues`,
+            { signal },
+        );
+        let likedIssueIds = new Set<number>();
+        let voteError = "";
 
-        let message: string = "";
-
-        if (error instanceof Error) {
-            message = error.message;
-        } else {
-            message = "An unexpected error occurred";
+        if (token) {
+            try {
+                const { issueIds } = await fetchData<{ issueIds: number[] }>(
+                    `${baseUrl}/issue-votes/me`,
+                    {
+                        headers: { Authorization: `Bearer ${token}`},
+                        signal,
+                    },
+                );
+                likedIssueIds = new Set(issueIds);
+            } catch {
+                voteError = "Could not load your saved likes. Sign in again if your session expired.";
+            }
         }
+
+        if (signal.aborted) return;
+
+        setData(allIssues.map( issue => ({
+            ...issue,
+            hasVoted: likedIssueIds.has(issue.id),
+        })));
+        setError(voteError);
+    } catch (error) {
+        if (signal.aborted) return;
+
         setData(null);
-        setError(message);
-        console.error("Error fetching issues:", message);
+        setError(error instanceof Error ? error.message : "Could not load issues.");
     }
 }
 
 // Fetches all the issues from the database
-async function fetchData<T>(url: string): Promise<T> {
-    const res = await fetch(url);
+async function fetchData<T>(url: string, options?: RequestInit): Promise<T> {
+    const res = await fetch(url, options);
 
     if (!res.ok) {
         throw new Error(`Request failed: HTTP ${res.status}`);

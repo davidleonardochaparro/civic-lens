@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAPI } from "../../../../../../hooks/useAPI";
 import {
     handleChange,
@@ -63,7 +63,7 @@ export default function DialogEdit({
         null,
     );
 
-    const [token, setToken] = useState<string | null>(() =>
+    const [token] = useState<string | null>(() =>
         localStorage.getItem("token"),
     );
 

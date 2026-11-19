@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useState } from "react";
-import type { Issue } from "../../Types/IssuesCardsTypes.ts";
+import { useState } from "react";
+import type { Issue, VoteResponse } from "../../Types/IssuesCardsTypes.ts";
 import CardActions from "@mui/material/CardActions";
 import Chip from "@mui/material/Chip";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -10,138 +10,39 @@ import Typography from "@mui/material/Typography";
 type CardActionsProps = {
     issue: Issue;
     apiCall: <T>(method: string, endpoint: string, headers: Headers, body?: object) => Promise<T>;
-    loading: boolean | null;
     setError: React.Dispatch<React.SetStateAction<string>>;
     userId: number;
     token: string | null;
+    handleVoteUpdated: (response: VoteResponse) => void;
 }
 
-type ResponsePUTAPI = {
-    message: string;
-    updatedIssue: IssueObject;
-}
+export default function CardActionsRender({ issue, apiCall, setError, userId, token, handleVoteUpdated }: CardActionsProps) {
 
-type IssueObject = {
-    category: "string";
-    createdAt: "string";
-    description: "string";
-    id: number;
-    status: "string";
-    title: "string";
-    updatedAt: "string";
-    user_id: number | null;
-    votes: number;
-}
+    const [isVoting, setIsVoting] = useState<boolean>(false);
+    const isAuthor = userId === issue.user_id;
+    const canVote = Boolean(token) && userId > 0 && !isAuthor;
 
-type PutBody = {
-    votes: string;
-}
+    async function handleVote() {
+        if (!token || !canVote || isVoting) return;
 
-export default function CardActionsRender({ issue, apiCall, loading, setError, userId, token }: CardActionsProps) {
+        const method = issue.hasVoted ? "DELETE" : "PUT";
+        const endpoint = `issues/${issue.id}/vote`;
+        const headers = new Headers({
+            Authorization: `Bearer ${token}`,
+        });
 
-    const [postUser, setPostUser] = useState<number | null>(null);
-    const [likeFlag, setLikeFlag] = useState<boolean | null>(null);
-    const [issueId, setIssueId] = useState<number | null>(null);
-
-    /*
-    async function handleLike(id: number) {
-        console.log('Session user: ', userId);
-        if(loading)return;
+        setIsVoting(true);
         setError("");
-        const requestHeaders = new Headers();
-        requestHeaders.set("Content-Type", "application/json");
-        
+
         try {
-            const response: ResponseGetAPI = await apiCall('GET', `issues/${id}`, requestHeaders);
-            setPostUser(response.issueObject.user_id);                
-        } catch (requestError) {
-            setError(
-                requestError instanceof Error 
-                    ? requestError.message
-                    : 'Could not fetch the post info.'
-            );
+            const response = await apiCall<VoteResponse>(method, endpoint, headers);
+            handleVoteUpdated(response);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Could not update your vote.");
+        } finally {
+            setIsVoting(false);
         }
-    }   
-    */
-    function changeLikeFlag(issueId: number) {
-        setIssueId(issueId);
-        setLikeFlag(prev => !prev);
     }
-
-    /*
-    async function handleLike(issueId: number) {
-        if(!token)return;
-        if(loading)return;
-        setError("");
-        setLikeFlag(prev => !prev);
-        const endpoint: string = `issues/vote/${issueId}`;
-        const requestHeaders = new Headers();
-        requestHeaders.set("Content-Type", "application/json");
-        requestHeaders.set("authorization", token);
-        const body: PutBody = {
-            votes: String(likeFlag)
-        }
-        try {
-            const response: ResponsePUTAPI = await apiCall(
-                'PUT', 
-                endpoint, 
-                requestHeaders,
-                body,
-            );
-            console.log(response);
-            // Reload the posts
-            // Change heart colour
-
-        } catch (requestError) {
-            const message = requestError instanceof Error 
-                ? requestError.message
-                : 'Could not make the request';
-            console.error(message);
-            setError(message);
-        }
-        
-    }
-    */
-
-    useEffect(() => {
-
-        if (likeFlag===null) return;
-
-        async function handleLike() {
-
-            if(!token)return;
-            if(loading)return;
-            setError("");
-            const endpoint: string = `issues/vote/${issueId}`;
-            const requestHeaders = new Headers();
-            requestHeaders.set("Content-Type", "application/json");
-            requestHeaders.set("authorization", token);
-            const body: PutBody = {
-                votes: String(likeFlag)
-            }
-            try {
-                const response: ResponsePUTAPI = await apiCall(
-                    'PUT', 
-                    endpoint, 
-                    requestHeaders,
-                    body,
-                );
-                console.log(response);
-                // Reload the posts
-                // Change heart colour
-
-            } catch (requestError) {
-                const message = requestError instanceof Error 
-                    ? requestError.message
-                    : 'Could not make the request';
-                console.error(message);
-                setError(message);
-            }
-
-        }
-        handleLike();
-
-    }, [likeFlag]);
 
     return (
         <>
@@ -160,10 +61,12 @@ export default function CardActionsRender({ issue, apiCall, loading, setError, u
                             alignItems: "center",
                         }}
                     >
-                        <IconButton aria-label="like the content"
-                            // onClick={() => {handleLike(issue.id)}}
-                            onClick={() => {changeLikeFlag(issue.id)}}
-                            disabled={userId === issue.user_id ? true : false}
+                        <IconButton
+                            aria-label="Like issue"
+                            aria-pressed={issue.hasVoted}
+                            onClick={handleVote}
+                            disabled={!canVote || isVoting}
+                            color={issue.hasVoted ? "error" : "default"}
                         >
                             <FavoriteIcon />
                         </IconButton>

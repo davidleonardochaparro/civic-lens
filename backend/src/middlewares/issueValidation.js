@@ -2,9 +2,9 @@ const  { attributesValidation, norm  } = require("../helpers/validIssueHelper");
 
 const entriesValidation = (req, res, next) => {
 
-    const { title, description, category, status, votes } = req.body;
+    const { title, description, category, status } = req.body;
     // Validation helper call
-    const validationResult = attributesValidation(title, description, category, status, votes);
+    const validationResult = attributesValidation(title, description, category, status);
 
     if (validationResult.error) {
         return res.status(validationResult.error.status).json({ message: validationResult.error.message});
@@ -17,10 +17,10 @@ const entriesValidation = (req, res, next) => {
 }
 
 const bodyNormalized = (req, res, next) => {
-    const { title, description, category, status, votes } = req.body;
+    const { title, description, category, status } = req.body;
 
     // Validation helper call
-    const validationResult = norm(title, description, category, status, votes);
+    const validationResult = norm(title, description, category, status);
 
     if (validationResult.error) {
         return res.status(validationResult.error.status).json({ message: validationResult.error.message});
@@ -31,17 +31,4 @@ const bodyNormalized = (req, res, next) => {
     next();
 }
 
-const voteValidation = (req, res, next) => {
-    const { votes } = req.body;
-    if (!votes) {
-        return res.status(400).json({
-            message: "No votes were sent, empty body."
-        });
-    }
-    
-    const newVotes = {votes};
-    req.newVotes = newVotes;
-    next();
-}
-
-module.exports = { entriesValidation, bodyNormalized, voteValidation };
+module.exports = { entriesValidation, bodyNormalized };
