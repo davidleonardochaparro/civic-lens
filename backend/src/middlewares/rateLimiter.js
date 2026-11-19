@@ -1,5 +1,5 @@
 const WINDOW_MS = 10_000;
-const MAX_REQUESTS = 100;
+const MAX_REQUESTS = 300;
 let requests = {};
 
 const rateLimiter = (req, res, next) => {

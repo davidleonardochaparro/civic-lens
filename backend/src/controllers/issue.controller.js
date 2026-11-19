@@ -51,17 +51,7 @@ async function readIssues(issueId = null) {
 
 const getIssues = async (req, res) => {
 
-    // const allIssues = await Issue.findAll();
-
     const allIssues = await readIssues();
-
-    /*
-        if (!allIssues.length) {
-            res.status(200).json({
-                message: `Reached ${req.method} route, from ${req.originalUrl}, no issues registered.`
-            });
-        }
-    */
 
     res.status(200).json({
         message: `Reached ${req.method} route, from ${req.originalUrl}, retrieved all issues.`,
