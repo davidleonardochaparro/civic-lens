@@ -67,6 +67,8 @@ type User = {
 type IssuesCardsProps = {
     renderPosts: boolean;
     setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>;
+    token: string | null;
+    tokenExpired: boolean | null;
 };
 
 export type {

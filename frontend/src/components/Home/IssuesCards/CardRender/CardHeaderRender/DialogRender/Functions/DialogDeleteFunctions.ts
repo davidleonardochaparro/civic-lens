@@ -5,6 +5,7 @@ export async function handleDeletePost(
     postId: number | null,
     loading: boolean | null,
     token: string | null,
+    tokenExpired: boolean | null,
     setError: React.Dispatch<React.SetStateAction<string>>,
     apiCall: <T>(
         method: string,
@@ -17,7 +18,7 @@ export async function handleDeletePost(
 ): Promise<void> {
     if (postId === null || loading) return;
 
-    if (!token) {
+    if (!token || tokenExpired || tokenExpired === null) {
         setError("Please sign in before deleting a post.");
         return;
     }

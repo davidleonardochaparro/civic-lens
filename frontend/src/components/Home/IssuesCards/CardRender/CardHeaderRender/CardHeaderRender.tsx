@@ -45,6 +45,7 @@ export default function CardHeaderRender({
     postId,
     loading,
     token,
+    tokenExpired,
     setError,
     apiCall,
     setRenderPosts,
@@ -57,7 +58,7 @@ export default function CardHeaderRender({
     const [initDescription, setInitDescription] = useState<string>("");
 
     async function getPostValues(): Promise<void> {
-        if(!token) return;
+        if(!token || tokenExpired || tokenExpired === null) return;
         if(!postId) return;
         if(loading) return;
         setError("");
@@ -110,6 +111,8 @@ export default function CardHeaderRender({
                     </Avatar>
                 }
                 action={
+                    Boolean(token) &&
+                    tokenExpired === false &&
                     userId === issue.user_id && (
                         <>
                             <IconButton
@@ -211,6 +214,8 @@ export default function CardHeaderRender({
                                 closeEditDialog={closeEditDialog}
                                 postId={postId}
                                 loading={loading}
+                                token={token}
+                                tokenExpired={tokenExpired}
                                 setAnchorEl={setAnchorEl}
                                 setRenderPosts={setRenderPosts}
                                 setError={setError}
@@ -221,6 +226,7 @@ export default function CardHeaderRender({
                                 postId={postId}
                                 loading={loading}
                                 token={token}
+                                tokenExpired={tokenExpired}
                                 setError={setError}
                                 apiCall={apiCall}
                                 setAnchorEl={setAnchorEl}

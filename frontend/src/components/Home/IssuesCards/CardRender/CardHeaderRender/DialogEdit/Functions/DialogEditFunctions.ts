@@ -16,6 +16,7 @@ const handleChange = (event: SelectChangeEvent, setCategory: React.Dispatch<Reac
 async function handleEditPost(
     e: React.SubmitEvent<HTMLFormElement>,
     token: string | null,
+    tokenExpired: boolean | null,
     setError: React.Dispatch<React.SetStateAction<string>>,
     postId: number | null,
     loading: boolean | null,
@@ -28,7 +29,7 @@ async function handleEditPost(
     closeEditDialog: () => void
 ): Promise<void> {
     e.preventDefault();
-    if (!token) {
+    if (!token || tokenExpired || tokenExpired === null) {
         setError("Please sign in before deleting a post.");
         return;
     }

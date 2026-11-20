@@ -9,6 +9,7 @@ type CardRenderProps = {
     postId: number | null;
     loading: boolean | null;
     token: string | null;
+    tokenExpired: boolean | null;
     setError: React.Dispatch<React.SetStateAction<string>>;
     apiCall: <T>(
         method: string,

@@ -13,17 +13,18 @@ type CardActionsProps = {
     setError: React.Dispatch<React.SetStateAction<string>>;
     userId: number;
     token: string | null;
+    tokenExpired: boolean | null;
     handleVoteUpdated: (response: VoteResponse) => void;
 }
 
-export default function CardActionsRender({ issue, apiCall, setError, userId, token, handleVoteUpdated }: CardActionsProps) {
+export default function CardActionsRender({ issue, apiCall, setError, userId, token, tokenExpired, handleVoteUpdated }: CardActionsProps) {
 
     const [isVoting, setIsVoting] = useState<boolean>(false);
     const isAuthor = userId === issue.user_id;
     const canVote = Boolean(token) && userId > 0 && !isAuthor;
 
     async function handleVote() {
-        if (!token || !canVote || isVoting) return;
+        if (!token || tokenExpired || tokenExpired === null || !canVote || isVoting) return;
 
         const method = issue.hasVoted ? "DELETE" : "PUT";
         const endpoint = `issues/${issue.id}/vote`;
@@ -65,7 +66,7 @@ export default function CardActionsRender({ issue, apiCall, setError, userId, to
                             aria-label="Like issue"
                             aria-pressed={issue.hasVoted}
                             onClick={handleVote}
-                            disabled={!canVote || isVoting}
+                            disabled={!canVote || isVoting || tokenExpired || tokenExpired === null}
                             color={issue.hasVoted ? "error" : "default"}
                         >
                             <FavoriteIcon />

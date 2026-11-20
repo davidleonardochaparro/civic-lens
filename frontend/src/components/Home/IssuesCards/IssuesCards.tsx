@@ -23,6 +23,8 @@ import CardRender from "./CardRender/CardRender.tsx";
 export default function IssuesCards({
     renderPosts,
     setRenderPosts,
+    token,
+    tokenExpired,
 }: IssuesCardsProps) {
 
     //State variables
@@ -36,15 +38,13 @@ export default function IssuesCards({
     >(null);
 
     const [error, setError] = useState<string>("");
-    const [token] = useState<string | null>(() =>
-        localStorage.getItem("token"),
-    );
     const [userId, setUserId] = useState<number>(0);
     const [postId, setPostId] = useState<number | null>(null);
 
     // Hook call
     const { apiCall, loading } = useAPI();
 
+    // Updates the displayed vote count and heart state after every vote
     function handleVoteUpdated(response: VoteResponse) {
         setDataWithNames( currentIssues => {
             if (!currentIssues) {
@@ -65,12 +65,15 @@ export default function IssuesCards({
         })
     }
 
-    // Decode the JWT token
+    // Decode the JWT token to stablish the user id
     useEffect(() => {
-        if (token) {
-            decodeToken(token, setUserId);
+        if (!token || tokenExpired !== false) {
+            setUserId(0);
+            return;
         }
-    }, [token]);
+
+        decodeToken(token, tokenExpired, setUserId);
+    }, [token, tokenExpired]);
 
     // Fetches all the issues from the database
     useEffect(() => {
@@ -79,13 +82,13 @@ export default function IssuesCards({
         setData(null);
         setError("");
 
-        void fetchIssues(token, controller.signal, setError, setData);
+        void fetchIssues(token, tokenExpired, controller.signal, setError, setData);
 
         return () => {
             controller.abort();
         };
 
-    }, [renderPosts, token]);
+    }, [renderPosts, token, tokenExpired]);
 
     // Organize the data to display the most recient post first
     useEffect(() => {
@@ -124,6 +127,7 @@ export default function IssuesCards({
                                 postId={postId}
                                 loading={loading}
                                 token={token}
+                                tokenExpired={tokenExpired}
                                 setError={setError}
                                 apiCall={apiCall}
                                 setRenderPosts={setRenderPosts}

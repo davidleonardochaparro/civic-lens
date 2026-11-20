@@ -20,6 +20,7 @@ export default function CardRender({
     postId,
     loading,
     token,
+    tokenExpired,
     setError,
     apiCall,
     setRenderPosts,
@@ -41,6 +42,7 @@ export default function CardRender({
                     postId={postId}
                     loading={loading}
                     token={token}
+                    tokenExpired={tokenExpired}
                     setError={setError}
                     apiCall={apiCall}
                     setRenderPosts={setRenderPosts}
@@ -68,6 +70,7 @@ export default function CardRender({
                     setError={setError}
                     userId={userId}
                     token={token}
+                    tokenExpired={tokenExpired}
                     handleVoteUpdated={handleVoteUpdated}
                 />
             </Card>

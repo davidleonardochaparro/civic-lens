@@ -26,6 +26,8 @@ import TextareaAutosize from "@mui/material/TextareaAutosize";
 type PostIssueProps = {
     renderPosts: boolean;
     setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>;
+    token: string | null;
+    tokenExpired: boolean | null;
 }
 
 type SimpleDialogProps = PostIssueProps & {
@@ -54,11 +56,10 @@ const Transition = React.forwardRef(function Transition(
 });
 
 
-function SimpleDialog({ setRenderPosts, open, handleClose}: SimpleDialogProps) {
+function SimpleDialog({ setRenderPosts, token, tokenExpired, open, handleClose}: SimpleDialogProps) {
     const [issueTitle, setIssueTitle] = useState<string>("");
     const [category, setCategory] = useState<string>("");
     const [issueDescription, setIssueDescription] = useState<string>("");
-    const [token] = useState<string | null>(() => localStorage.getItem("token"));
     const [alert, setAlert] = useState<boolean>(false);
 
     const { post } = useAPIPost();
@@ -82,7 +83,7 @@ function SimpleDialog({ setRenderPosts, open, handleClose}: SimpleDialogProps) {
             status: "created"
         };
         
-        if (!token) {
+        if (!token || tokenExpired !== false) {
             setAlert(true);
             return;
         }
@@ -241,7 +242,7 @@ function SimpleDialog({ setRenderPosts, open, handleClose}: SimpleDialogProps) {
     );
 }
 
-export default function PostIssue({ renderPosts, setRenderPosts}: PostIssueProps) {
+export default function PostIssue({ renderPosts, setRenderPosts, token, tokenExpired}: PostIssueProps) {
     const [open, setOpen] = useState<boolean>(false);
 
     const handleOpen = (): void => {
@@ -277,7 +278,7 @@ export default function PostIssue({ renderPosts, setRenderPosts}: PostIssueProps
                     >
                         Add new issue
                     </Button>
-                    <SimpleDialog renderPosts={renderPosts} setRenderPosts={setRenderPosts} open={open} handleClose={handleClose} />
+                    <SimpleDialog renderPosts={renderPosts} setRenderPosts={setRenderPosts} token={token} tokenExpired={tokenExpired} open={open} handleClose={handleClose} />
                 </Box>
             </Box>
         </>

@@ -14,9 +14,12 @@ import MenuItem from "@mui/material/MenuItem";
 import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 
-export default function Navbar() {
+type NavbarProps = {
+    token: string | null;
+    tokenExpired: boolean | null;
+}
+export default function Navbar({ token, tokenExpired}: NavbarProps) {
 
-    const [token] = useState<string | null>(() => localStorage.getItem("token"));
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -27,6 +30,7 @@ export default function Navbar() {
         setAnchorEl(null);
     }
 
+    const isSignedIn = Boolean(token) && tokenExpired === false;
     return (
         <>
             <Box sx={{ flexGrow: 1 }}>
@@ -89,7 +93,7 @@ export default function Navbar() {
                                 mr: { xs: 0.8, sm: 2 },
                             }}
                         >
-                            {!token && (
+                            {!isSignedIn && (
                                 <>
                                     <Button
                                         component={Link}
@@ -125,41 +129,39 @@ export default function Navbar() {
                                     </Button>                                
                                 </>
                             )}
-                            {
-                                token && (
-                                    <>
-                                        <IconButton
-                                            size="large"
-                                            aria-label="account of current user"
-                                            aria-controls="menu-appbar"
-                                            aria-haspopup="true"
-                                            onClick={handleMenu}
-                                            color="inherit"
-                                        >
-                                            <AccountCircle />
-                                        </IconButton>
-                                        <Menu
-                                            id="menu-appbar"
-                                            anchorEl={anchorEl}
-                                            anchorOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right',
-                                            }}
-                                            keepMounted
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right',
-                                            }}
-                                            open={Boolean(anchorEl)}
-                                            onClose={handleClose}
-                                        >
-                                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                            <MenuItem onClick={handleClose}>My account</MenuItem>
+                            { isSignedIn && (
+                                <>
+                                    <IconButton
+                                        size="large"
+                                        aria-label="account of current user"
+                                        aria-controls="menu-appbar"
+                                        aria-haspopup="true"
+                                        onClick={handleMenu}
+                                        color="inherit"
+                                    >
+                                        <AccountCircle />
+                                    </IconButton>
+                                    <Menu
+                                        id="menu-appbar"
+                                        anchorEl={anchorEl}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={handleClose}>Profile</MenuItem>
+                                        <MenuItem onClick={handleClose}>My account</MenuItem>
 
-                                        </Menu>
-                                    </>
-                                )
-                            }
+                                    </Menu>
+                                </>
+                            )}
                         </Stack>
                     </Toolbar>
                 </AppBar>

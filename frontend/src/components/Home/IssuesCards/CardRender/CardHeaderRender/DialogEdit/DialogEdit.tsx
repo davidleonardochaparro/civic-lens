@@ -30,6 +30,8 @@ type DialogEditProps = {
     closeEditDialog: () => void;
     postId: number | null;
     loading: boolean | null;
+    token: string | null;
+    tokenExpired: boolean | null;
     setError: React.Dispatch<React.SetStateAction<string>>;
     setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     setRenderPosts: React.Dispatch<React.SetStateAction<boolean>>;
@@ -52,6 +54,8 @@ export default function DialogEdit({
     closeEditDialog,
     postId,
     loading,
+    token,
+    tokenExpired,
     setAnchorEl,
     setRenderPosts,
     setError,
@@ -61,10 +65,6 @@ export default function DialogEdit({
     const [category, setCategory] = useState<string | null>(null);
     const [issueDescription, setIssueDescription] = useState<string | null>(
         null,
-    );
-
-    const [token] = useState<string | null>(() =>
-        localStorage.getItem("token"),
     );
 
     const { apiCall } = useAPI();
@@ -87,6 +87,7 @@ export default function DialogEdit({
                             handleEditPost(
                                 e,
                                 token,
+                                tokenExpired,
                                 setError,
                                 postId,
                                 loading,
@@ -114,7 +115,6 @@ export default function DialogEdit({
                                 name="title-edit"
                                 placeholder={"whatever"}
                                 value={issueEditTitle ?? initTitle}
-                                // value={initTitle}
                                 onChange={(event) => {
                                     setIssueEditTitle(event.target.value);
                                 }}

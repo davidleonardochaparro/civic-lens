@@ -46,6 +46,7 @@ async function getUsername(
 // Saves the fetched issues in 'data' state variable
 async function fetchIssues(
     token: string | null,
+    tokenExpired: boolean | null,
     signal: AbortSignal,
     setError: React.Dispatch<React.SetStateAction<string>>,
     setData: React.Dispatch<React.SetStateAction<Issue[] | null>>,
@@ -59,7 +60,7 @@ async function fetchIssues(
         let likedIssueIds = new Set<number>();
         let voteError = "";
 
-        if (token) {
+        if (token && !tokenExpired && tokenExpired !== null) {
             try {
                 const { issueIds } = await fetchData<{ issueIds: number[] }>(
                     `${baseUrl}/issue-votes/me`,
@@ -111,9 +112,10 @@ function organizeData(data: Issue[]): Issue[] | undefined {
 // Decodes the JWT token to get the payload info
 function decodeToken(
     token: string | null,
+    tokenExpired: boolean | null,
     setUserId: React.Dispatch<React.SetStateAction<number>>,
 ): void {
-    if(!token)return;
+    if(!token || tokenExpired || tokenExpired === null)return;
     const base64URL: string = token.split(".")[1];
     const base64 = base64URL.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
